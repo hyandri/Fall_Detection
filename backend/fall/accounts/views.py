@@ -1,0 +1,49 @@
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User,auth
+from django.contrib import messages
+
+def signup(request):
+    if request.method=='POST':
+        username=request.POST.get('username')
+        email=request.POST.get('email')
+        password=request.POST.get('password')
+
+        if len(password) < 8:
+            messages.info(request, 'Password must be at least 8 characters long.')
+            return redirect('signup')
+
+        if not email.endswith('@gmail.com'):
+            messages.info(request, 'Please use a valid Gmail account.')
+            return redirect('signup')
+
+        if User.objects.filter(username=username).exists():
+            messages.info(request, 'Username is taken.')
+            return redirect('signup')
+
+        if User.objects.filter(email=email).exists():
+            messages.info(request, 'Email is taken.')
+            return redirect('signup')
+
+        # Create user
+        user = User.objects.create_user(username=username, password=password, email=email)
+        user.save()
+        messages.success(request, 'Account created successfully! You can now log in.')
+        return redirect('loginout')
+
+    return render(request, 'signup.html')
+
+def loginout(request):
+    if request.method=="POST":
+        username=request.POST['username']
+        password=request.POST['password']
+
+        user=auth.authenticate(username=username, password=password)
+        if user is not None:
+            auth.login(request, user)
+            return redirect('home')  
+        else:
+            messages.info(request,'invalid credintials')
+            return redirect('loginout')
+    else:
+        return render(request, 'loginout.html')

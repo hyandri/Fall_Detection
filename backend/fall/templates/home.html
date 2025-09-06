@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fall Detection Demo</title>
+</head>
+<body>
+    <h1>Demo: Send WhatsApp Alert</h1>
+    <form action="{% url 'send_alert' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Send WhatsApp Alert</button>
+    </form>
+</body>
+</html>
