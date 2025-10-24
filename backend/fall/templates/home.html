@@ -1,13 +1,107 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Fall Detection Demo</title>
+    <title>Fall Detection System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 60px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 40px;
+        }
+        .main-button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.5em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(231, 76, 60, 0.3);
+        }
+        .main-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(231, 76, 60, 0.4);
+        }
+        .features {
+            margin-top: 40px;
+            text-align: left;
+        }
+        .feature {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+        .test-button {
+            background-color: #95a5a6;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px;
+            font-size: 0.9em;
+        }
+        .test-button:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
 </head>
 <body>
-    <h1>Demo: Send WhatsApp Alert</h1>
-    <form action="{% url 'send_alert' %}" method="post">
-        {% csrf_token %}
-        <button type="submit">Send WhatsApp Alert</button>
-    </form>
+    <div class="container">
+        <h1>🚨 Fall Detection System</h1>
+        <p class="subtitle">AI-powered fall detection with real-time monitoring</p>
+        
+        <a href="{% url 'fall_detection' %}" class="main-button">
+            🎯 Start Fall Detection
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <strong>🤖 AI Detection:</strong> Automatic fall detection using YOLO model
+            </div>
+            <div class="feature">
+                <strong>📱 Instant Alerts:</strong> WhatsApp notifications when falls are detected
+            </div>
+            <div class="feature">
+                <strong>📹 Live Monitoring:</strong> Real-time video streaming with detection overlays
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="{% url 'send_alert' %}" class="test-button">Test Alert</a>
+            <a href="{% url 'performance_dashboard' %}" class="test-button">Performance Dashboard</a>
+        </div>
+    </div>
 </body>
 </html>
