@@ -41,9 +41,6 @@ class CompleteSystemTester:
         print("\n5️⃣ Testing Alert System...")
         self.test_results['alerts'] = self.test_alerts()
         
-        # Test 6: Performance Monitoring
-        print("\n6️⃣ Testing Performance Monitoring...")
-        self.test_results['performance'] = self.test_performance()
         
         # Generate final report
         self.generate_report()
@@ -191,32 +188,6 @@ class CompleteSystemTester:
             print(f"❌ Alert test failed: {e}")
             return False
     
-    def test_performance(self):
-        """Test performance monitoring"""
-        try:
-            # Check performance stats
-            response = requests.get(f"{self.base_url}/performance/stats/")
-            if response.status_code != 200:
-                print("❌ Performance stats failed")
-                return False
-            
-            data = response.json()
-            if data['status'] != 'success':
-                print("❌ Performance stats error")
-                return False
-            
-            # Check optimization
-            response = requests.get(f"{self.base_url}/performance/optimize/")
-            if response.status_code != 200:
-                print("❌ Performance optimization failed")
-                return False
-            
-            print("✅ Performance monitoring working")
-            return True
-            
-        except Exception as e:
-            print(f"❌ Performance test failed: {e}")
-            return False
     
     def generate_report(self):
         """Generate final test report"""
@@ -249,7 +220,6 @@ class CompleteSystemTester:
         print("   1. Start the system: python manage.py runserver")
         print("   2. Open browser: http://localhost:8000/")
         print("   3. Click 'Start Fall Detection'")
-        print("   4. Monitor performance: http://localhost:8000/performance/dashboard/")
         
         return passed_tests == total_tests
     

@@ -135,101 +135,6 @@ def toggle_alerts(request):
     })
 
 
-def update_performance_stats(detection_time, frame_processing_time, detections_count):
-    """Update performance statistics"""
-    global performance_stats, performance_lock, start_time
-    
-    with performance_lock:
-        current_time = time.time()
-        performance_stats['detection_time'] = detection_time
-        performance_stats['frame_processing_time'] = frame_processing_time
-        performance_stats['total_frames_processed'] += 1
-        performance_stats['system_uptime'] = current_time - start_time
-        
-        # Calculate FPS
-        if frame_processing_time > 0:
-            performance_stats['fps'] = 1.0 / frame_processing_time
-        
-        # Calculate detection accuracy (simplified)
-        if detections_count > 0:
-            performance_stats['detection_accuracy'] = min(1.0, detections_count / 10.0)
-        
-        # Get system resources (simplified)
-        try:
-            import psutil
-            process = psutil.Process()
-            performance_stats['memory_usage'] = process.memory_info().rss / 1024 / 1024  # MB
-            performance_stats['cpu_usage'] = process.cpu_percent()
-        except:
-            performance_stats['memory_usage'] = 0
-            performance_stats['cpu_usage'] = 0
-
-
-def get_performance_stats(request):
-    """Get current performance statistics"""
-    global performance_stats, performance_lock
-    
-    with performance_lock:
-        stats = performance_stats.copy()
-    
-    return JsonResponse({
-        'status': 'success',
-        'performance': stats,
-        'health_status': get_health_status(stats)
-    })
-
-
-def get_health_status(stats):
-    """Determine system health status"""
-    if stats['fps'] >= 15:
-        return 'excellent'
-    elif stats['fps'] >= 10:
-        return 'good'
-    elif stats['fps'] >= 5:
-        return 'fair'
-    else:
-        return 'poor'
-
-
-def optimize_detection_settings(request):
-    """Optimize detection settings based on performance"""
-    global performance_stats, performance_lock
-    
-    with performance_lock:
-        current_fps = performance_stats['fps']
-        current_memory = performance_stats['memory_usage']
-    
-    optimizations = []
-    
-    # FPS-based optimizations
-    if current_fps < 10:
-        optimizations.append({
-            'type': 'fps_optimization',
-            'message': 'Low FPS detected. Consider reducing video resolution or detection frequency.',
-            'suggestions': [
-                'Reduce webcam resolution to 320x240',
-                'Increase detection skip frames',
-                'Lower confidence threshold'
-            ]
-        })
-    
-    # Memory-based optimizations
-    if current_memory > 500:  # 500MB
-        optimizations.append({
-            'type': 'memory_optimization',
-            'message': 'High memory usage detected. Consider optimizing model loading.',
-            'suggestions': [
-                'Use model quantization',
-                'Implement frame skipping',
-                'Clear detection cache'
-            ]
-        })
-    
-    return JsonResponse({
-        'status': 'success',
-        'optimizations': optimizations,
-        'current_performance': performance_stats
-    })
 
 
 # Global variables for webcam management
@@ -253,19 +158,6 @@ alert_lock = threading.Lock()
 alert_enabled = True
 alert_count = 0
 
-# Performance monitoring variables
-performance_stats = {
-    'fps': 0,
-    'detection_time': 0,
-    'frame_processing_time': 0,
-    'total_frames_processed': 0,
-    'detection_accuracy': 0,
-    'system_uptime': 0,
-    'memory_usage': 0,
-    'cpu_usage': 0
-}
-performance_lock = threading.Lock()
-start_time = time.time()
 
 
 def initialize_webcam():
@@ -373,10 +265,6 @@ def webcam_capture_loop():
                         with frame_lock:
                             latest_frame = annotated_frame
                         
-                        # Update performance statistics
-                        detection_time = time.time() - detection_start
-                        frame_processing_time = time.time() - detection_start
-                        update_performance_stats(detection_time, frame_processing_time, len(detections))
                             
                     except Exception as e:
                         print(f"Error in fall detection: {e}")
@@ -495,9 +383,6 @@ def fall_detection(request):
     return render(request, "fall_detection.html")
 
 
-def performance_dashboard(request):
-    """Render performance monitoring dashboard"""
-    return render(request, "performance_dashboard.html")
 
 
 def generate_frames():

@@ -20,7 +20,4 @@ urlpatterns = [
     path("detection/", views.fall_detection, name="fall_detection"),
     path("alerts/status/", views.get_alert_status, name="alert_status"),
     path("alerts/toggle/", views.toggle_alerts, name="toggle_alerts"),
-    path("performance/stats/", views.get_performance_stats, name="performance_stats"),
-    path("performance/optimize/", views.optimize_detection_settings, name="optimize_settings"),
-    path("performance/dashboard/", views.performance_dashboard, name="performance_dashboard"),
 ]
