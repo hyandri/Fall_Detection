@@ -1,0 +1,832 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alerts - FallGuard Monitoring</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes alertPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2c2d71, #36337a, #4a457f);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(45, 42, 101, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-left .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #aaacff, #8b8dff, #667eea, #764ba2);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-icon {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .nav-icon:nth-child(1) { animation-delay: 0s; }
+        .nav-icon:nth-child(2) { animation-delay: 1s; }
+        .nav-icon:nth-child(3) { animation-delay: 2s; }
+        .nav-icon:nth-child(4) { animation-delay: 3s; }
+
+        .nav-icon:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-icon.active {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-weight: 700;
+            font-size: 3rem;
+            background: linear-gradient(135deg, #ffffff, #e0e7ff, #c7d2fe);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-title i {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .page-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(224, 231, 255, 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 500;
+        }
+
+        /* Alert Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.05), transparent);
+            transition: left 0.6s;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        /* Alerts List */
+        .alerts-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alerts-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.03), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title i {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .alert-item {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border-left: 6px solid var(--warning);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .alert-item:hover::before {
+            left: 100%;
+        }
+
+        .alert-item:hover {
+            transform: translateX(8px) translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .alert-item.critical {
+            border-left-color: var(--danger);
+            background: linear-gradient(135deg, #fff, #fee2e2);
+            animation: alertPulse 2s ease-in-out infinite;
+        }
+
+        .alert-item.warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(135deg, #fff, #fef3c7);
+        }
+
+        .alert-item.resolved {
+            border-left-color: var(--success);
+            background: linear-gradient(135deg, #fff, #d1fae5);
+            opacity: 0.9;
+        }
+
+        .alert-icon {
+            font-size: 1.75rem;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .alert-item.critical .alert-icon {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            color: var(--danger);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .alert-item.warning .alert-icon {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
+            color: var(--warning);
+        }
+
+        .alert-item.resolved .alert-icon {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+            color: var(--success);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, var(--dark), #374151);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .alert-description {
+            color: var(--gray);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.5;
+        }
+
+        .alert-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .alert-time {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .alert-time:hover {
+            color: var(--primary);
+            transform: translateX(3px);
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-resolve {
+            background: linear-gradient(135deg, var(--success), #0d9c6d);
+            color: white;
+        }
+
+        .btn-resolve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-dismiss {
+            background: linear-gradient(135deg, var(--gray), #475569);
+            color: white;
+        }
+
+        .btn-dismiss:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(100, 116, 139, 0.4);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: var(--gray);
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .empty-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .empty-text {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--dark), #374151);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        .empty-subtext {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .page-title {
+                font-size: 2.25rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .alert-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+            
+            .alert-meta {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .alert-actions {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <span>FallGuard</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="{% url 'home' %}" class="nav-icon" title="Home">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="{% url 'dashboard' %}" class="nav-icon" title="Dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+            </a>
+            <a href="{% url 'alerts_list' %}" class="nav-icon active" title="Alerts">
+                <i class="fas fa-bell"></i>
+            </a>
+            <a href="{% url 'logout' %}" class="nav-icon" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-bell"></i> Alert History
+                </h1>
+                <p class="page-subtitle">Monitor all fall detection alerts and notifications</p>
+            </div>
+        </div>
+
+        <!-- Alert Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1)); color: #ef4444;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-number">12</div>
+                <div class="stat-label">Total Alerts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #f59e0b;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-number">3</div>
+                <div class="stat-label">Active Alerts</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #10b981;">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-number">9</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.1)); color: #6366f1;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="stat-number">5</div>
+                <div class="stat-label">Guardians Notified</div>
+            </div>
+        </div>
+
+        <!-- Alerts List -->
+        <div class="alerts-container">
+            <h2 class="section-title">
+                <i class="fas fa-history"></i> Recent Alerts
+            </h2>
+
+            <div class="alert-list">
+                <!-- Critical Alert -->
+                <div class="alert-item critical">
+                    <div class="alert-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">Fall Detected - Immediate Attention Required</div>
+                        <div class="alert-description">Potential fall detected in living room area. High confidence score of 94%.</div>
+                        <div class="alert-meta">
+                            <span class="alert-time">
+                                <i class="fas fa-clock"></i> 2 minutes ago
+                            </span>
+                            <span>
+                                <i class="fas fa-map-marker-alt"></i> Living Room
+                            </span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-resolve">
+                            <i class="fas fa-check"></i> Resolve
+                        </button>
+                        <button class="btn btn-dismiss">
+                            <i class="fas fa-times"></i> Dismiss
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Warning Alert -->
+                <div class="alert-item warning">
+                    <div class="alert-icon">
+                        <i class="fas fa-running"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">Unusual Movement Pattern</div>
+                        <div class="alert-description">Rapid movement detected followed by stillness. Medium confidence of 72%.</div>
+                        <div class="alert-meta">
+                            <span class="alert-time">
+                                <i class="fas fa-clock"></i> 15 minutes ago
+                            </span>
+                            <span>
+                                <i class="fas fa-map-marker-alt"></i> Kitchen
+                            </span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-resolve">
+                            <i class="fas fa-check"></i> Resolve
+                        </button>
+                        <button class="btn btn-dismiss">
+                            <i class="fas fa-times"></i> Dismiss
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resolved Alert -->
+                <div class="alert-item resolved">
+                    <div class="alert-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">Fall Alert Resolved</div>
+                        <div class="alert-description">Previous fall detection confirmed as false alarm. User is safe and responsive.</div>
+                        <div class="alert-meta">
+                            <span class="alert-time">
+                                <i class="fas fa-clock"></i> 1 hour ago
+                            </span>
+                            <span>
+                                <i class="fas fa-user-check"></i> Verified by Admin
+                            </span>
+                        </div>
+                    </div>
+                    <div class="alert-actions">
+                        <button class="btn btn-dismiss">
+                            <i class="fas fa-times"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced alert interaction with animations
+        document.querySelectorAll('.btn-resolve').forEach(button => {
+            button.addEventListener('click', function() {
+                const alertItem = this.closest('.alert-item');
+                
+                // Add resolving animation
+                alertItem.style.transform = 'scale(0.95)';
+                alertItem.style.opacity = '0.7';
+                
+                setTimeout(() => {
+                    alertItem.classList.remove('critical', 'warning');
+                    alertItem.classList.add('resolved');
+                    
+                    // Update alert icon and title
+                    const icon = alertItem.querySelector('.alert-icon i');
+                    icon.className = 'fas fa-check-circle';
+                    alertItem.querySelector('.alert-icon').style.animation = 'float 3s ease-in-out infinite';
+                    
+                    const title = alertItem.querySelector('.alert-title');
+                    title.textContent = 'Alert Resolved';
+                    
+                    // Remove resolve button with animation
+                    this.style.transform = 'scale(0)';
+                    setTimeout(() => {
+                        this.remove();
+                    }, 300);
+                    
+                    // Restore item appearance
+                    alertItem.style.transform = '';
+                    alertItem.style.opacity = '';
+                }, 500);
+            });
+        });
+
+        document.querySelectorAll('.btn-dismiss').forEach(button => {
+            button.addEventListener('click', function() {
+                const alertItem = this.closest('.alert-item');
+                
+                // Dismiss animation
+                alertItem.style.transform = 'translateX(100px)';
+                alertItem.style.opacity = '0';
+                
+                setTimeout(() => {
+                    alertItem.remove();
+                }, 500);
+            });
+        });
+
+        // Add entrance animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Animate alert items
+            const alertItems = document.querySelectorAll('.alert-item');
+            alertItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-30px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, index * 150 + 600);
+            });
+
+            // Add critical alert pulsing
+            const criticalAlerts = document.querySelectorAll('.alert-item.critical');
+            criticalAlerts.forEach(alert => {
+                setInterval(() => {
+                    alert.style.transform = 'translateX(8px) translateY(-2px) scale(1.02)';
+                    setTimeout(() => {
+                        if (alert.parentNode) {
+                            alert.style.transform = 'translateX(8px) translateY(-2px) scale(1)';
+                        }
+                    }, 300);
+                }, 2000);
+            });
+        });
+
+        // Add real-time updates simulation
+        function simulateNewAlert() {
+            const alertList = document.querySelector('.alert-list');
+            const newAlert = document.createElement('div');
+            newAlert.className = 'alert-item critical';
+            newAlert.innerHTML = `
+                <div class="alert-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                    <div class="alert-title">New Fall Detected</div>
+                    <div class="alert-description">Emergency fall detection in bedroom area. Immediate response required.</div>
+                    <div class="alert-meta">
+                        <span class="alert-time">
+                            <i class="fas fa-clock"></i> Just now
+                        </span>
+                        <span>
+                            <i class="fas fa-map-marker-alt"></i> Bedroom
+                        </span>
+                    </div>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn btn-resolve">
+                        <i class="fas fa-check"></i> Resolve
+                    </button>
+                    <button class="btn btn-dismiss">
+                        <i class="fas fa-times"></i> Dismiss
+                    </button>
+                </div>
+            `;
+            
+            // Add entrance animation
+            newAlert.style.opacity = '0';
+            newAlert.style.transform = 'translateX(-30px)';
+            alertList.insertBefore(newAlert, alertList.firstChild);
+            
+            setTimeout(() => {
+                newAlert.style.transition = 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                newAlert.style.opacity = '1';
+                newAlert.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Add event listeners to new buttons
+            setTimeout(() => {
+                newAlert.querySelector('.btn-resolve').addEventListener('click', function() {
+                    const alertItem = this.closest('.alert-item');
+                    alertItem.classList.remove('critical');
+                    alertItem.classList.add('resolved');
+                    this.remove();
+                });
+                
+                newAlert.querySelector('.btn-dismiss').addEventListener('click', function() {
+                    const alertItem = this.closest('.alert-item');
+                    alertItem.style.transform = 'translateX(100px)';
+                    alertItem.style.opacity = '0';
+                    setTimeout(() => alertItem.remove(), 500);
+                });
+            }, 100);
+        }
+
+        // Uncomment to simulate new alerts every 30 seconds
+        // setInterval(simulateNewAlert, 30000);
+    </script>
+</body>
+</html>
