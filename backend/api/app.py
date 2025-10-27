@@ -8,6 +8,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Optional integrations from krrishpana branch (import safely)
+try:
+    from backend.detection.fall_detector import FallDetector
+    from backend.alert_service import send_whatsapp_alert as send_whatsapp_from_krr
+    from backend.auth import login_required
+except Exception:
+    # If those modules aren't present, provide safe fallbacks so the API still runs
+    FallDetector = None
+    send_whatsapp_from_krr = None
+    def login_required(f):
+        return f
+
 app = Flask(__name__)
 CORS(app)
 
@@ -117,6 +129,50 @@ def test_whatsapp():
         return jsonify({'message': 'Test WhatsApp sent', 'sid': info}), 200
     else:
         return jsonify({'message': 'Failed to send test WhatsApp', 'error': info}), 500
+
+
+# Routes to integrate krrishpana detection system (if available)
+@app.route('/api/start-detection', methods=['POST'])
+@login_required
+def start_detection():
+    if FallDetector is None:
+        return jsonify({'message': 'Detection module not available'}), 501
+    try:
+        detector = FallDetector()
+        detector.start()
+        return jsonify({'status': 'Detection started'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
+
+
+@app.route('/api/fall-detected', methods=['POST'])
+def fall_detected_webhook():
+    # Endpoint for krrishpana detection to POST fall events
+    data = request.json or {}
+    fall_data = data.get('fall_data', {})
+    contacts = data.get('contacts')
+
+    message_text = f"🚨 FALL DETECTED! Confidence: {fall_data.get('confidence') or 'unknown'}"
+    try:
+        # prefer local send_whatsapp_alert if available
+        if contacts:
+            for c in contacts:
+                send_whatsapp_alert(c, message_text)
+        else:
+            # fallback to environment-configured number
+            to_num = os.getenv('WHATSAPP_PHONE_NUMBER')
+            send_whatsapp_alert(to_num, message_text)
+
+        # also call krrishpana alert service if present
+        if send_whatsapp_from_krr:
+            try:
+                send_whatsapp_from_krr(os.getenv('WHATSAPP_PHONE_NUMBER'), message_text)
+            except Exception:
+                pass
+
+        return jsonify({'status': 'Alert sent'}), 200
+    except Exception as e:
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 if __name__ == '__main__':
     with app.app_context():
