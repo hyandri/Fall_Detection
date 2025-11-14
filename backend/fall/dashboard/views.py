@@ -1,9 +1,11 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 from .models import Administrator, Contact
 from .forms import AdminInfoForm
 
 
+@login_required(login_url='loginout')
 def dashboard_view(request):
     # Admin info
     admin = Administrator.objects.first()

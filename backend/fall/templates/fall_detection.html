@@ -1,110 +1,315 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fall Detection System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
         }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0fdf4;
+            padding: 0;
+            margin: 0;
+            padding-top: 64px;
+            color: #1e293b;
+        }
+        
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 32px 24px;
         }
+        
         .header {
-            background-color: #2c3e50;
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-icon {
+            width: 48px;
+            height: 48px;
+            background: #10b981;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 20px;
-            text-align: center;
+            font-size: 20px;
         }
-        .video-container {
-            padding: 20px;
-            text-align: center;
+        
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
         }
-        .video-stream {
-            max-width: 100%;
-            border: 3px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        
+        .subtitle {
+            color: #64748b;
+            font-size: 14px;
+            margin: 4px 0 0 0;
         }
-        .status {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            font-weight: bold;
-            text-align: center;
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #dcfce7;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #059669;
         }
-        .status.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
         }
-        .status.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .status.info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-        .detection-info {
-            background-color: #f8f9fa;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border-left: 4px solid #007bff;
-        }
-        .fall-detected {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-            animation: pulse 1s infinite;
-        }
+        
         @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
+        
+        .video-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+        }
+        
         .loading {
-            text-align: center;
-            padding: 40px;
-            color: #666;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px;
+            color: #64748b;
+        }
+        
+        .loading-icon {
+            width: 56px;
+            height: 56px;
+            border: 4px solid #f1f5f9;
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        
+        .loading p {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .video-container {
+            display: none;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .video-stream {
+            width: 100%;
+            display: block;
+        }
+        
+        .status-bar {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 10px;
+            margin-top: 16px;
+            border: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .detection-info {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 24px;
+            border: 1px solid #f1f5f9;
+            display: none;
+        }
+        
+        .detection-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        .status {
+            padding: 12px 16px;
+            margin: 12px 0;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .status.success {
+            background: #dcfce7;
+            color: #059669;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #0284c7;
+            border: 1px solid #bfdbfe;
+        }
+        
+        .status-icon {
+            font-size: 16px;
+        }
+        
+        .fall-detected {
+            background: #fef2f2 !important;
+            border-color: #fecaca !important;
+            color: #dc2626;
+            animation: flash 1s infinite;
+        }
+        
+        @keyframes flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
     </style>
 </head>
 <body>
+    {% include 'navbar.html' %}
     <div class="container">
         <div class="header">
-            <h1>🚨 Fall Detection System</h1>
-            <p>Automatic fall detection with real-time monitoring</p>
+            <div class="header-title">
+                <div class="header-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h1>Fall Detection System</h1>
+                    <p class="subtitle">Automatic fall detection with real-time monitoring</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Active</span>
+            </div>
         </div>
         
-        <div class="video-container">
+        <div class="video-section">
             <div id="loading" class="loading">
-                <h3>🔄 Starting webcam and fall detection...</h3>
+                <div class="loading-icon"></div>
+                <h3>Starting webcam and fall detection...</h3>
                 <p>Please wait while the system initializes</p>
             </div>
             
-            <div id="videoContainer" style="display: none;">
+            <div id="videoContainer" class="video-container">
                 <img id="videoStream" class="video-stream" src="" alt="Fall Detection Stream">
             </div>
             
-            <div id="status" class="status info">Initializing...</div>
+            <div id="status" class="status info">
+                <i class="fas fa-circle-notch fa-spin status-icon"></i>
+                <span>Initializing...</span>
+            </div>
             
-            <div id="detectionInfo" class="detection-info" style="display: none;">
-                <strong>Detection Status:</strong> <span id="detectionStatus">Starting...</span><br>
-                <strong>Detections:</strong> <span id="detectionCount">0</span><br>
-                <strong>Last Update:</strong> <span id="lastUpdate">-</span><br>
-                <strong>Alert System:</strong> <span id="alertStatus">Active</span><br>
-                <strong>Alerts Sent:</strong> <span id="alertCount">0</span>
+            <div id="detectionInfo" class="detection-info">
+                <h3><i class="fas fa-chart-line"></i> Detection Status</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Status</span>
+                        <span class="info-value" id="detectionStatus">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Detections</span>
+                        <span class="info-value" id="detectionCount">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Last Update</span>
+                        <span class="info-value" id="lastUpdate">-</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Alert System</span>
+                        <span class="info-value" id="alertStatus">Active</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Alerts Sent</span>
+                        <span class="info-value" id="alertCount">0</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

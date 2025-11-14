@@ -1,0 +1,341 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - FallGuard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="{% static 'styles.css' %}" rel="stylesheet">
+  <style>
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #3f486f, #4a355f, #5b395f, #572b31);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 4s ease infinite;
+    }
+
+    .gradient-text-subtle {
+      background: linear-gradient(135deg, #131417, #383c41, #a0aec0);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    .gradient-border {
+      position: relative;
+      border-radius: 20px;
+      background: white;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+      background-size: 300% 300%;
+      border-radius: 22px;
+      z-index: -1;
+      animation: gradientShift 4s ease infinite;
+      opacity: 0.8;
+    }
+
+    .gradient-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .gradient-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    .gradient-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+      animation-duration: 1.5s;
+    }
+
+    .gradient-link {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 4s ease infinite;
+      transition: all 0.3s ease;
+    }
+
+    .gradient-link:hover {
+      animation-duration: 1.5s;
+      text-shadow: 0 2px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .input-focus-gradient {
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #ffffff, #f8fafc) padding-box;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .input-focus-gradient:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 4px 15px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .floating-icon {
+      animation: float 4s ease-in-out infinite;
+      animation-delay: calc(var(--delay, 0) * 1s);
+    }
+
+    .message-glow {
+      animation: subtlePulse 2s ease-in-out infinite;
+    }
+
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.9; transform: scale(1.02); }
+    }
+
+    .security-grid {
+      background: 
+        linear-gradient(90deg, transparent 24px, rgba(102, 126, 234, 0.03) 24px, rgba(102, 126, 234, 0.03) 25px, transparent 25px),
+        linear-gradient(180deg, transparent 24px, rgba(102, 126, 234, 0.03) 24px, rgba(102, 126, 234, 0.03) 25px, transparent 25px);
+      background-size: 50px 50px;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 security-grid">
+  <!-- Floating Background Icons -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="floating-icon absolute top-1/4 left-1/6 text-6xl opacity-10" style="--delay: 0">🛡️</div>
+    <div class="floating-icon absolute top-1/3 right-1/5 text-4xl opacity-10" style="--delay: 1">🔒</div>
+    <div class="floating-icon absolute bottom-1/4 left-1/5 text-5xl opacity-10" style="--delay: 2">👁️</div>
+    <div class="floating-icon absolute bottom-1/3 right-1/6 text-3xl opacity-10" style="--delay: 3">⚡</div>
+  </div>
+
+  <div class="gradient-border max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-2xl relative z-10">
+    <!-- Messages Display -->
+    {% if messages %}
+      <div class="space-y-3">
+        {% for message in messages %}
+          <div class="message-glow p-4 rounded-xl text-white text-center font-semibold {% if message.tags == 'error' %}bg-gradient-to-r from-red-500 to-pink-500{% else %}bg-gradient-to-r from-green-500 to-teal-500{% endif %} shadow-lg">
+            <div class="flex items-center justify-center space-x-2">
+              <span class="text-lg">{% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}</span>
+              <span>{{ message }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Header Section -->
+    <div class="text-center space-y-3">
+      <div class="flex justify-center">
+        <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <span class="text-2xl text-white">🔐</span>
+        </div>
+      </div>
+      <h2 class="gradient-text text-4xl font-bold tracking-tight">Welcome Back!</h2>
+      <p class="gradient-text-subtle text-lg font-medium">Sign in to your secure dashboard</p>
+    </div>
+
+    <!-- Login Form -->
+    <form method="POST" class="mt-8 space-y-6">
+      {% csrf_token %}
+      
+      <div class="space-y-5">
+        <!-- Username Field -->
+        <div class="space-y-2">
+          <label class="gradient-text-subtle text-sm font-semibold flex items-center">
+            <span class="mr-2">👤</span> Username
+          </label>
+          <input
+            name="username"
+            type="text"
+            required
+            placeholder="Enter your username"
+            class="input-focus-gradient appearance-none rounded-xl w-full px-4 py-4 border-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none transition-all duration-300"
+          />
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-2">
+          <label class="gradient-text-subtle text-sm font-semibold flex items-center">
+            <span class="mr-2">🔑</span> Password
+          </label>
+          <input
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            placeholder="Enter your password"
+            class="input-focus-gradient appearance-none rounded-xl w-full px-4 py-4 border-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none transition-all duration-300"
+          />
+        </div>
+      </div>
+
+      <!-- Forgot Password -->
+      <div class="flex items-center justify-between pt-2">
+        <div class="text-sm">
+          <a href="#" class="gradient-link font-semibold hover:underline flex items-center">
+            <span class="mr-1">🔓</span> Forgot your password?
+          </a>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4">
+        <button
+          type="submit"
+          class="gradient-button w-full text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 relative overflow-hidden"
+        >
+          <span class="relative z-10 flex items-center justify-center space-x-2">
+            <span>Sign In to Dashboard</span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Sign Up Link -->
+      <div class="text-center pt-6">
+        <p class="gradient-text-subtle text-sm">
+          New to FallGuard?
+          <a href="{% url 'signup' %}" class="gradient-link font-bold ml-1 hover:underline text-lg">
+            Create Account
+          </a>
+        </p>
+      </div>
+    </form>
+
+    <!-- Security Features -->
+    <div class="mt-8 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+      <div class="flex items-center justify-center space-x-4 text-xs">
+        <div class="flex items-center space-x-1 gradient-text-subtle">
+          <span>🛡️</span>
+          <span>Secure Login</span>
+        </div>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <div class="flex items-center space-x-1 gradient-text-subtle">
+          <span>🔒</span>
+          <span>Encrypted</span>
+        </div>
+        <div class="w-px h-4 bg-gray-300"></div>
+        <div class="flex items-center space-x-1 gradient-text-subtle">
+          <span>⚡</span>
+          <span>Fast & Secure</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced interactive animations
+    document.addEventListener('DOMContentLoaded', function() {
+      const container = document.querySelector('.gradient-border');
+      const inputs = document.querySelectorAll('input');
+      const form = document.querySelector('form');
+      
+      // Initial entrance animation
+      container.style.transform = 'translateY(30px) scale(0.9)';
+      container.style.opacity = '0';
+      
+      setTimeout(() => {
+        container.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+        container.style.transform = 'translateY(0) scale(1)';
+        container.style.opacity = '1';
+      }, 200);
+
+      // Input focus enhancements
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.parentElement.style.transform = 'scale(1.02)';
+          this.parentElement.style.transition = 'transform 0.3s ease';
+        });
+
+        input.addEventListener('blur', function() {
+          this.parentElement.style.transform = 'scale(1)';
+        });
+      });
+
+      // Form submission animation
+      form.addEventListener('submit', function(e) {
+        const button = this.querySelector('button[type="submit"]');
+        const originalContent = button.innerHTML;
+        
+        button.innerHTML = `
+          <div class="flex items-center justify-center space-x-3">
+            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span class="font-semibold">Authenticating...</span>
+          </div>
+        `;
+        button.disabled = true;
+
+        // Add pulsing animation during submission
+        button.style.animation = 'subtlePulse 1s ease-in-out infinite';
+
+        // Fallback reset
+        setTimeout(() => {
+          button.innerHTML = originalContent;
+          button.disabled = false;
+          button.style.animation = '';
+        }, 5000);
+      });
+
+      // Add interactive background on mouse move
+      document.addEventListener('mousemove', function(e) {
+        const container = document.querySelector('.gradient-border');
+        const x = (e.clientX / window.innerWidth) * 100;
+        const y = (e.clientY / window.innerHeight) * 100;
+        
+        container.style.setProperty('--mouse-x', `${x}%`);
+        container.style.setProperty('--mouse-y', `${y}%`);
+      });
+    });
+
+    // Add CSS custom properties for mouse interaction
+    const style = document.createElement('style');
+    style.textContent = `
+      .gradient-border::before {
+        background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+          rgba(102, 126, 234, 0.8) 0%, 
+          rgba(118, 75, 162, 0.6) 30%, 
+          rgba(240, 147, 251, 0.4) 60%, 
+          rgba(245, 87, 108, 0.2) 100%);
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

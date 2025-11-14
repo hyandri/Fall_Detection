@@ -1,0 +1,309 @@
+{% load static %}
+<nav class="modern-navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="{% url 'home' %}" class="nav-logo">
+                <div class="logo-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span class="logo-text">PAHARA</span>
+            </a>
+        </div>
+        
+        <div class="nav-right">
+            {% if user.is_authenticated %}
+                <!-- Authenticated Navbar -->
+                <a href="{% url 'dashboard' %}" class="nav-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'fall_detection' %}" class="nav-link">
+                    <i class="fas fa-video"></i>
+                    <span>Fall Detection</span>
+                </a>
+                
+                <!-- User Dropdown -->
+                <div class="nav-user-menu" onclick="toggleUserDropdown()">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <span class="user-name">{{ user.username }}</span>
+                    <i class="fas fa-chevron-down dropdown-arrow"></i>
+                    
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header">
+                            <div class="user-info">
+                                <span class="user-fullname">{{ user.get_full_name|default:user.username }}</span>
+                                <span class="user-email">{{ user.email }}</span>
+                            </div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'dashboard' %}" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="{% url 'logout' %}" class="dropdown-item logout-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Unauthenticated Navbar (minimal) -->
+                <a href="{% url 'loginout' %}" class="nav-link">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Sign In</span>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<style>
+.modern-navbar {
+    background: white;
+    border-bottom: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0;
+    height: 64px;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: #1e293b;
+    transition: all 0.2s ease;
+}
+
+.nav-logo:hover {
+    opacity: 0.8;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: #dcfce7;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981;
+    font-size: 18px;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background: #f8fafc;
+    color: #10b981;
+}
+
+.nav-link i {
+    font-size: 16px;
+}
+
+.nav-user-menu {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 12px 4px 4px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.nav-user-menu:hover {
+    background: #f8fafc;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    background: #dcfce7;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981;
+    font-size: 16px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.dropdown-arrow {
+    font-size: 12px;
+    color: #64748b;
+    transition: transform 0.2s ease;
+}
+
+.nav-user-menu.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 10px 25px rgba(0,0,0,0.08);
+    min-width: 240px;
+    display: none;
+    z-index: 1001;
+    border: 1px solid #f1f5f9;
+    animation: dropdownSlide 0.2s ease-out;
+}
+
+.user-dropdown.show {
+    display: block;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 16px;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.user-fullname {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.user-email {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 4px 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background: #f8fafc;
+    color: #10b981;
+}
+
+.dropdown-item i {
+    font-size: 14px;
+    width: 18px;
+    text-align: center;
+}
+
+.dropdown-item.logout-item {
+    color: #ef4444;
+}
+
+.dropdown-item.logout-item:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+</style>
+
+<script>
+function toggleUserDropdown() {
+    const dropdown = document.getElementById('userDropdown');
+    const menu = document.querySelector('.nav-user-menu');
+    
+    const isShowing = dropdown.classList.contains('show');
+    
+    // Close all dropdowns
+    document.querySelectorAll('.user-dropdown').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.nav-user-menu').forEach(m => m.classList.remove('active'));
+    
+    if (!isShowing) {
+        dropdown.classList.add('show');
+        menu.classList.add('active');
+    }
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+    const menu = document.querySelector('.nav-user-menu');
+    const dropdown = document.getElementById('userDropdown');
+    
+    if (!menu.contains(event.target) && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+        menu.classList.remove('active');
+    }
+});
+</script>
+
+

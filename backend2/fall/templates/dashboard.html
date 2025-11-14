@@ -1,0 +1,712 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FallGuard Monitoring System</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.6); }
+        }
+
+        :root {
+            --primary: #2c2d71;
+            --primary-dark: #2c2d71;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --gray: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #2c2d71, #36337a, #4a457f);
+            background-size: 300% 300%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        /* Modern Navigation */
+        .navbar {
+            background: rgba(45, 42, 101, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-left .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #aaacff, #8b8dff, #667eea, #764ba2);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-icon {
+            color: white;
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .nav-icon:nth-child(1) { animation-delay: 0s; }
+        .nav-icon:nth-child(2) { animation-delay: 1s; }
+        .nav-icon:nth-child(3) { animation-delay: 2s; }
+
+        .nav-icon:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 200px;
+            margin-top: 0.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .user-greeting {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--dark);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .logout-btn:hover::before {
+            left: 100%;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #e0e7ff, #c7d2fe);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease infinite;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-title i {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        /* Cards and Sections */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.05), transparent);
+            transition: left 0.6s;
+        }
+
+        .dashboard-section:hover::before {
+            left: 100%;
+        }
+
+        .dashboard-section:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-title i {
+            color: var(--primary);
+            font-size: 1.25rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Profile Section */
+        .profile-card {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-picture {
+            font-size: 4rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 1rem;
+            border-radius: 20px;
+            animation: float 4s ease-in-out infinite;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .profile-detail {
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .profile-detail:hover {
+            transform: translateX(5px);
+            color: var(--primary);
+        }
+
+        .profile-detail strong {
+            color: var(--dark);
+            min-width: 120px;
+        }
+
+        /* Forms and Inputs */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--dark);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-input {
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            position: relative;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1), 0 8px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Checkbox Group */
+        .checkbox-group {
+            display: flex;
+            gap: 2rem;
+            margin: 1rem 0;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        }
+
+        .checkbox-item:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            color: white;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(44, 45, 113, 0.4);
+        }
+
+        .simple-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .simple-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .simple-btn:hover::before {
+            left: 100%;
+        }
+
+        .simple-btn:hover {
+            background: linear-gradient(135deg, var(--primary-dark), #25266b);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(44, 45, 113, 0.4);
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none;
+        }
+
+        .mt-15 {
+            margin-top: 15px;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        /* Alert Bell Animation */
+        #alerts-bell {
+            position: relative;
+        }
+
+        #alerts-bell::after {
+            content: '';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-radius: 50%;
+            animation: pulseGlow 1.5s ease-in-out infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .dashboard-title {
+                font-size: 2rem;
+            }
+            
+            .navbar {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Modern Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-left">
+            <div class="logo">
+                <span>FallGuard</span>
+            </div>
+        </div>
+        <div class="nav-right">
+            <a href="{% url 'home' %}" class="nav-icon" title="Home">
+                <i class="fas fa-home"></i>
+            </a>
+            <a href="{% url 'alerts_list' %}" class="nav-icon" title="Alerts" id="alerts-bell">
+                <i class="fas fa-bell"></i>
+            </a>
+            <div class="nav-icon user-menu" onclick="toggleUserDropdown()">
+                <i class="fas fa-user-circle"></i>
+                <div class="user-dropdown hidden" id="userDropdown">
+                    <div class="user-greeting">Hello, {{ user.username }}!</div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Profile Section -->
+            <section class="dashboard-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-circle"></i> Profile Information
+                </h2>
+                <div class="profile-card">
+                    <div class="profile-picture">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="profile-info">
+                        <p class="profile-name">Administrator</p>
+                        <p class="profile-detail">
+                            <strong>Current Email:</strong> {{ admin.email|default:"admin@example.com" }}
+                        </p>
+                        <p class="profile-detail">
+                            <strong>Phone Number:</strong> {{ admin.phone_number|default:"+1 (555) 123-4567" }}
+                        </p>
+
+                        <button id="show-form-btn" class="simple-btn">
+                            <i class="fas fa-edit"></i> Update Info
+                        </button>
+
+                        <div id="update-form" class="hidden mt-15">
+                            <form method="post" class="contact-info">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button type="submit" class="btn btn-primary w-full">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add Guardian Section -->
+            <section class="dashboard-section">
+                <h2 class="section-title">
+                    <i class="fas fa-user-plus"></i> Add Guardian
+                </h2>
+                <form method="post" class="contact-info">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="name">Guardian Name</label>
+                        <input id="name" name="name" type="text" placeholder="Enter full name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input id="email" name="email" type="email" placeholder="Enter email address" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="number">Phone Number</label>
+                        <input id="number" name="number" type="tel" placeholder="Enter phone number" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Alert Platforms</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="whatsapp_enabled" value="true">
+                                <i class="fab fa-whatsapp" style="color: #25D366;"></i> WhatsApp
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="email_enabled" value="true">
+                                <i class="fas fa-envelope" style="color: #EA4335;"></i> Email
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">
+                        <i class="fas fa-user-plus"></i> Add Guardian
+                    </button>
+                </form>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Toggle update form visibility
+        document.getElementById('show-form-btn').addEventListener('click', function() {
+            const formDiv = document.getElementById('update-form');
+            formDiv.classList.toggle('hidden');
+            this.classList.toggle('hidden');
+        });
+
+        // User dropdown functionality
+        function toggleUserDropdown() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Logout function
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '{% url "logout" %}';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('userDropdown');
+            const userMenu = document.querySelector('.user-menu');
+            
+            if (!userMenu.contains(event.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        // Enhanced animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.dashboard-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(30px) scale(0.95)';
+                
+                setTimeout(() => {
+                    section.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0) scale(1)';
+                }, index * 300);
+            });
+
+            // Add floating animation to profile picture
+            const profilePic = document.querySelector('.profile-picture');
+            setInterval(() => {
+                profilePic.style.transform = 'translateY(-5px)';
+                setTimeout(() => {
+                    profilePic.style.transform = 'translateY(0)';
+                }, 2000);
+            }, 4000);
+        });
+
+        // Add interactive background effect
+        document.addEventListener('mousemove', function(e) {
+            const x = (e.clientX / window.innerWidth) * 100;
+            const y = (e.clientY / window.innerHeight) * 100;
+            
+            document.body.style.backgroundPosition = `${x}% ${y}%`;
+        });
+    </script>
+</body>
+</html>

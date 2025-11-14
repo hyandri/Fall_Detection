@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up - FallGuard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="{% static 'styles.css' %}" rel="stylesheet">
+  <style>
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes subtlePulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea, #462c60, #502c54, #63373c);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 4s ease infinite;
+    }
+
+    .gradient-text-subtle {
+      background: linear-gradient(135deg, #0a0c0e, #212428, #2a2c2f);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    .gradient-border {
+      position: relative;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c);
+      background-size: 300% 300%;
+      border-radius: 14px;
+      z-index: -1;
+      animation: gradientShift 4s ease infinite;
+      opacity: 0.7;
+    }
+
+    .gradient-button {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .gradient-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .gradient-button:hover::before {
+      left: 100%;
+    }
+
+    .gradient-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .gradient-link {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: gradientShift 3s ease infinite;
+      transition: all 0.3s ease;
+    }
+
+    .gradient-link:hover {
+      animation-duration: 1.5s;
+      text-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .input-focus-gradient:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      background: linear-gradient(135deg, #ffffff, #f7fafc);
+    }
+
+    .message-animated {
+      animation: subtlePulse 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-100 min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="gradient-border max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-xl">
+    <!-- Messages Display -->
+    {% if messages %}
+      <div class="space-y-2">
+        {% for message in messages %}
+          <p class="p-3 rounded-lg text-white text-center message-animated {% if message.tags == 'error' %}bg-gradient-to-r from-red-500 to-pink-500{% else %}bg-gradient-to-r from-green-500 to-teal-500{% endif %}">
+            <span class="font-semibold">
+              {% if message.tags == 'error' %}⚠️{% else %}✅{% endif %}
+              {{ message }}
+            </span>
+          </p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <div class="text-center">
+      <h2 class="gradient-text text-center text-4xl font-bold">Join FallGuard</h2>
+      <p class="gradient-text-subtle mt-3 text-lg font-medium">Create your secure account</p>
+    </div>
+
+    <form method="POST" class="mt-8 space-y-6">
+      {% csrf_token %}
+      <div class="space-y-5">
+        <!-- Username Field -->
+        <div class="space-y-2">
+          <label class="gradient-text-subtle text-sm font-medium">Username</label>
+          <input
+            name="username"
+            type="text"
+            required
+            placeholder="Enter your username"
+            class="input-focus-gradient appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none transition-all duration-300"
+          />
+        </div>
+
+        <!-- Email Field -->
+        <div class="space-y-2">
+          <label class="gradient-text-subtle text-sm font-medium">Email Address</label>
+          <input
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            placeholder="your.email@gmail.com"
+            class="input-focus-gradient appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none transition-all duration-300"
+          />
+          <p class="gradient-text-subtle text-xs mt-2 flex items-center">
+            <span class="mr-1">📧</span> Must be a Gmail address (@gmail.com)
+          </p>
+        </div>
+
+        <!-- Password Field -->
+        <div class="space-y-2">
+          <label class="gradient-text-subtle text-sm font-medium">Password</label>
+          <input
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            required
+            placeholder="Create a strong password"
+            class="input-focus-gradient appearance-none rounded-xl relative block w-full px-4 py-3 border-2 border-gray-200 placeholder-gray-400 text-gray-900 focus:outline-none transition-all duration-300"
+          />
+          <p class="gradient-text-subtle text-xs mt-2 flex items-center">
+            <span class="mr-1">🔒</span> Password must be at least 8 characters long
+          </p>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-4">
+        <button
+          type="submit"
+          class="gradient-button w-full text-white py-3 px-4 rounded-xl font-semibold text-lg transition-all duration-300"
+        >
+          <span class="relative z-10"> Create Account</span>
+        </button>
+      </div>
+
+      <!-- Login Link -->
+      <div class="text-center pt-4">
+        <p class="gradient-text-subtle text-sm">
+          Already have an account?
+          <a href="{% url 'login' %}" class="gradient-link font-semibold ml-1 hover:underline">
+            Sign In Here
+          </a>
+        </p>
+      </div>
+    </form>
+
+    <!-- Security Note -->
+    <div class="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+      <p class="gradient-text-subtle text-xs text-center flex items-center justify-center">
+        <span class="mr-2">🛡️</span>
+        Your data is secured with enterprise-grade encryption
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Add interactive animations
+    document.addEventListener('DOMContentLoaded', function() {
+      const inputs = document.querySelectorAll('input');
+      const form = document.querySelector('form');
+      
+      // Add focus animations
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.parentElement.classList.add('transform', 'scale-105');
+          setTimeout(() => {
+            this.parentElement.classList.remove('transform', 'scale-105');
+          }, 300);
+        });
+      });
+
+      // Form submission enhancement
+      form.addEventListener('submit', function(e) {
+        const button = this.querySelector('button[type="submit"]');
+        const originalText = button.innerHTML;
+        
+        button.innerHTML = `
+          <div class="flex items-center justify-center space-x-2">
+            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Creating Account...</span>
+          </div>
+        `;
+        button.disabled = true;
+
+        // Revert after 5 seconds (fallback)
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.disabled = false;
+        }, 5000);
+      });
+
+      // Add floating animation to container
+      const container = document.querySelector('.gradient-border');
+      container.style.transform = 'translateY(20px)';
+      container.style.opacity = '0';
+      
+      setTimeout(() => {
+        container.style.transition = 'all 0.6s cubic-bezier(0.16, 1, 0.3, 1)';
+        container.style.transform = 'translateY(0)';
+        container.style.opacity = '1';
+      }, 100);
+    });
+  </script>
+</body>
+</html>

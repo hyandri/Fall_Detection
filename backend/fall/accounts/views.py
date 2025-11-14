@@ -1,7 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User,auth
+from django.contrib.auth.models import User
+from django.contrib import auth
 from django.contrib import messages
+from django.contrib.auth import logout as auth_logout
+from mainapp.views import stop_webcam, disable_detection
 
 def signup(request):
     if request.method=='POST':
@@ -34,16 +37,34 @@ def signup(request):
     return render(request, 'signup.html')
 
 def loginout(request):
-    if request.method=="POST":
-        username=request.POST['username']
-        password=request.POST['password']
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
-        user=auth.authenticate(username=username, password=password)
+        user = auth.authenticate(username=username, password=password)
         if user is not None:
             auth.login(request, user)
-            return redirect('home')  
+            # Prefer a POST 'next' then GET 'next', default to 'dashboard'
+            next_url = request.POST.get('next') or request.GET.get('next') or 'dashboard'
+            return redirect(next_url)
         else:
-            messages.info(request,'invalid credintials')
+            messages.info(request, 'invalid credentials')
             return redirect('loginout')
-    else:
-        return render(request, 'loginout.html')
+    return render(request, 'loginout.html')
+def logout(request):
+    # Stop detection and webcam before logging out
+    try:
+        disable_detection(request)
+    except Exception as e:
+        # Ignore errors if detection isn't running
+        pass
+    
+    try:
+        stop_webcam(request)
+    except Exception as e:
+        # Ignore errors if webcam isn't running
+        pass
+    
+    auth_logout(request)
+    messages.success(request, 'Logged out successfully.')
+    return redirect('home')

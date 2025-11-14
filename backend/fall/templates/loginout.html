@@ -4,79 +4,206 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - InsureWise</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Login - Fall Detection</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
   <link href="/static/styles.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0fdf4;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .auth-container {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 40px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.08);
+      border: 1px solid #f1f5f9;
+    }
+    
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .auth-icon {
+      width: 64px;
+      height: 64px;
+      background: #dcfce7;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+    
+    .auth-icon i {
+      color: #10b981;
+      font-size: 28px;
+    }
+    
+    .auth-header h2 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    
+    .auth-header p {
+      font-size: 15px;
+      color: #64748b;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 15px;
+      color: #1e293b;
+      transition: all 0.2s ease;
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    .form-group input::placeholder {
+      color: #94a3b8;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      background: #10b981;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary:hover {
+      background: #059669;
+    }
+    
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+    
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #64748b;
+    }
+    
+    .auth-footer a {
+      color: #10b981;
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+    
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+    
+    .messages {
+      margin-bottom: 24px;
+    }
+    
+    .message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+  </style>
 </head>
-<body class="bg-[#E0E2E4] min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div>
+<body>
+  <div class="auth-container">
     {% if messages %}
-      <div style="margin-bottom: 1rem;">
+      <div class="messages">
         {% for message in messages %}
-          <p style="
-              padding: 0.5rem 1rem;
-              margin-bottom: 0.5rem;
-              border-radius: 0.5rem;
-              color: white;
-              background-color:#acb27a
-            ">
-            !   {{ message }}   ! 
-          </p>
+          <p class="message">{{ message }}</p>
         {% endfor %}
       </div>
     {% endif %}
-  </div>
-  <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
-    <div>
-      <h2 class="text-center text-3xl font-bold text-gray-900">Welcome back</h2>
-      <p class="mt-2 text-center text-sm text-gray-600">Sign in to your account</p>
+
+    <div class="auth-header">
+      <div class="auth-icon">
+        <i class="fas fa-sign-in-alt"></i>
+      </div>
+      <h2>Welcome back</h2>
+      <p>Sign in to your account</p>
     </div>
 
-    <form action="loginout" method="POST" class="mt-8 space-y-6">
+    <form action="loginout" method="POST">
       {% csrf_token %}
-      <div class="space-y-4">
-        <div>
-          <input
-            name="email"
-            type="email"
-            autocomplete="email"
-            required
-            placeholder="Email address"
-            class="appearance-none rounded-lg relative block w-full px-4 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
-        <div>
-          <input
-            name="password"
-            type="password"
-            autocomplete="current-password"
-            required
-            placeholder="Password"
-            class="appearance-none rounded-lg relative block w-full px-4 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          />
-        </div>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          required
+          placeholder="Enter your username"
+        />
       </div>
 
-      <div class="flex items-center justify-between">
-        <div class="text-sm">
-          <a href="#" class="font-medium text-blue-600 hover:text-blue-500">Forgot your password?</a>
-        </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          placeholder="Enter your password"
+        />
       </div>
 
-      <div>
-        <button
-          type="submit"
-          class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-        >
-          Log In
-        </button>
-      </div>
+      <button type="submit" class="btn-primary">
+        Sign In
+      </button>
 
-      <div class="text-center">
-        <p class="text-sm text-gray-600">
-          Don't have an account?
-          <a href="{% url 'signup' %}" class="font-medium text-blue-600 hover:text-blue-500 ml-1">Sign up</a>
-        </p>
+      <div class="auth-footer">
+        <span>Don't have an account?</span>
+        <a href="{% url 'signup' %}">Sign up</a>
       </div>
     </form>
   </div>
