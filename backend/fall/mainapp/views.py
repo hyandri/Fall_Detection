@@ -390,6 +390,7 @@ def webcam_capture_loop():
                         
                         # Extract detection information
                         detections = []
+                        annotated_frame = frame.copy()
                         for result in results:
                             if result.boxes is not None:
                                 for box in result.boxes:
@@ -407,25 +408,18 @@ def webcam_capture_loop():
                                         'class_id': class_id,
                                         'class_name': class_name
                                     })
+
+                        # If the YOLO result already contains rendered annotations, reuse them
+                        if results:
+                            try:
+                                annotated_frame = results[0].plot()
+                            except Exception:
+                                # Fallback to the original frame if plotting fails
+                                annotated_frame = frame.copy()
                         
                         # Update latest detections
                         with detection_lock:
                             latest_detections = detections
-                        
-                        # Draw bounding boxes on frame
-                        annotated_frame = frame.copy()
-                        for detection in detections:
-                            x1, y1, x2, y2 = detection['bbox']
-                            confidence = detection['confidence']
-                            class_name = detection['class_name']
-                            
-                            # Draw bounding box
-                            cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-                            
-                            # Draw label
-                            label = f"{class_name}: {confidence:.2f}"
-                            cv2.putText(annotated_frame, label, (x1, y1 - 10), 
-                                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
                         
                         with frame_lock:
                             latest_frame = annotated_frame
@@ -559,6 +553,7 @@ def generate_frames():
         if webcam_capture and webcam_capture.isOpened():
             ret, frame = webcam_capture.read()
             if ret:
+                annotated_frame = frame.copy()
                 # Process frame for detection if enabled
                 if detection_enabled and fall_detection_model is not None:
                     try:
@@ -567,6 +562,7 @@ def generate_frames():
                         
                         # Extract detections
                         detections = []
+                        annotated_frame = frame.copy()
                         for result in results:
                             if result.boxes is not None:
                                 for box in result.boxes:
@@ -581,43 +577,30 @@ def generate_frames():
                                         'class_id': class_id,
                                         'class_name': class_name
                                     })
-                        
+
+                        # Prefer the model-rendered frame if available
+                        if results:
+                            try:
+                                annotated_frame = results[0].plot()
+                            except Exception:
+                                annotated_frame = frame.copy()
+
                         # Update latest detections
                         with detection_lock:
                             latest_detections = detections
                         
-                        # Draw bounding boxes
-                        for detection in detections:
-                            x1, y1, x2, y2 = detection['bbox']
-                            confidence = detection['confidence']
-                            class_name = detection['class_name']
-                            
-                            # Choose color based on class
-                            color = (0, 0, 255) if 'fall' in class_name.lower() else (0, 255, 0)
-                            
-                            # Draw bounding box
-                            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-                            
-                            # Draw label with background
-                            label = f"{class_name}: {confidence:.2f}"
-                            label_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 2)[0]
-                            cv2.rectangle(frame, (x1, y1 - label_size[1] - 10), 
-                                         (x1 + label_size[0], y1), color, -1)
-                            cv2.putText(frame, label, (x1, y1 - 5), 
-                                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
-                        
                         # Add detection status text
                         status_text = f"Detections: {len(detections)} | Detection: {'ON' if detection_enabled else 'OFF'}"
-                        cv2.putText(frame, status_text, (10, 30), 
+                        cv2.putText(annotated_frame, status_text, (10, 30), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
-                        cv2.putText(frame, status_text, (10, 30), 
+                        cv2.putText(annotated_frame, status_text, (10, 30), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 1)
                         
                     except Exception as e:
                         print(f"Error in streaming detection: {e}")
                 
-                # Encode frame as JPEG
-                ret, buffer = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                # Encode frame as JPEG (prefer annotated frame when available)
+                ret, buffer = cv2.imencode('.jpg', annotated_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
                 if ret:
                     frame_bytes = buffer.tobytes()
                     yield (b'--frame\r\n'

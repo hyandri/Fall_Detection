@@ -1,0 +1,10 @@
+Hi {{ user.username }},
+
+Thanks for signing up for FallGuard. Please confirm your email address by clicking the link below:
+
+{{ verification_url }}
+
+If you did not create this account, you can safely ignore this email.
+
+— The {{ site_name }} team
+

@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check your email - FallGuard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
+    <div class="bg-white/90 backdrop-blur-md border border-white/40 rounded-2xl shadow-2xl max-w-md w-full p-10 text-center space-y-6">
+        <div class="w-16 h-16 mx-auto bg-purple-100 rounded-full flex items-center justify-center text-3xl">
+            ✉️
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800">Verify your email</h1>
+        <p class="text-gray-600 leading-relaxed">
+            We’ve sent a verification link to <span class="font-semibold text-gray-900">{{ email }}</span>.
+            Please click the link in the email to activate your account.
+        </p>
+        <div class="bg-gray-50 rounded-xl p-4 text-sm text-gray-600">
+            <p>If you don’t see the email:</p>
+            <ul class="mt-2 space-y-1 text-left list-disc list-inside">
+                <li>Check your spam or promotions folder.</li>
+                <li>Make sure you entered the correct email address.</li>
+                <li>Try signing up again after a few minutes.</li>
+            </ul>
+        </div>
+        <a href="{% url 'loginout' %}" class="inline-flex items-center justify-center px-6 py-3 rounded-xl text-white font-semibold bg-gradient-to-r from-purple-500 to-indigo-500 hover:shadow-lg transition-all">
+            Return to login
+        </a>
+    </div>
+</body>
+</html>
+
