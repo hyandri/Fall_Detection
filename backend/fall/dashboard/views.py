@@ -4,6 +4,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Administrator, Contact
 from .forms import AdminInfoForm
 
+def home(request):
+    return render(request, "home.html")
 
 @login_required(login_url='loginout')
 def dashboard_view(request):

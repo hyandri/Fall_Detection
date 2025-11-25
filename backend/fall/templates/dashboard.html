@@ -1,455 +1,276 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Fall Detection Monitoring</title>
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <title>Dashboard - Pahara</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-
-
+    
     <style>
-        /* Modern Dashboard Styles */
+        body { font-family: 'Inter', sans-serif; }
         
-        body {
-            background: #f0fdf4;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Smooth transitions */
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 200ms; }
+
+        /* Styling for Django's default form rendering (form.as_p) */
+        .django-form p {
+            margin-bottom: 1rem;
         }
-        
-        .simple-btn {
-            background: #10b981;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
+        .django-form label {
+            display: block;
+            font-size: 0.875rem;
             font-weight: 500;
-            transition: all 0.2s ease;
-            margin-top: 12px;
+            color: #374151;
+            margin-bottom: 0.25rem;
         }
-        
-        .simple-btn:hover {
-            background: #059669;
+        .django-form input, .django-form select, .django-form textarea {
+            width: 100%;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
-        
-        .simple-btn:active {
-            transform: scale(0.98);
-        }
-        
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px;
-        }
-
-        .dashboard-container h1 {
-            margin-bottom: 32px;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        
-        .dashboard-container h1 i {
-            color: #10b981;
-        }
-
-        .dashboard-section {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid #f1f5f9;
-        }
-
-        .dashboard-section h2 {
-            margin-bottom: 24px;
-            color: #1e293b;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #f1f5f9;
-        }
-        
-        .dashboard-section h2 i {
-            color: #10b981;
-            font-size: 20px;
-        }
-
-        .profile-card {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .profile-picture {
-            width: 80px;
-            height: 80px;
-            border-radius: 16px;
-            background: #dcfce7;
-            color: #10b981;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 36px;
-        }
-
-        .profile-info h3 {
-            margin-bottom: 8px;
-            color: #1e293b;
-            font-size: 22px;
-            font-weight: 600;
-        }
-        
-        .profile-info p {
-            color: #64748b;
-            font-size: 14px;
-            margin: 4px 0;
-        }
-
-        .contact-info {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-
-        .contact-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid #f1f5f9;
-            transition: all 0.2s ease;
-        }
-        
-        .contact-item:hover {
-            background: #f0fdf4;
-            border-color: #d1fae5;
-        }
-
-        .contact-item label {
-            font-weight: 500;
-            color: #1e293b;
-            font-size: 14px;
-        }
-        
-        .contact-item input {
-            padding: 8px 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
-            width: 200px;
-            transition: all 0.2s ease;
-        }
-        
-        .contact-item input:focus {
+        .django-form input:focus {
             outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
-
-        .emergency-contacts,
-        .guardian-settings {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+        .django-form .helptext {
+            font-size: 0.75rem;
+            color: #6b7280;
         }
-
-        .guardian-setting {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            background: #fff;
-        }
-
-        .guardian-info {
-            flex: 1;
-        }
-
-        .guardian-controls {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .messages-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .message-item {
-            padding: 1rem;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            background: #f8f9fa;
-        }
-
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.5rem;
-        }
-
-        .message-timestamp {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .message-type {
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .message-type.sms {
-            background: #28a745;
-            color: white;
-        }
-
-        .message-type.email {
-            background: #007bff;
-            color: white;
-        }
-
-        .contact-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #f1f5f9;
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin: 12px 0;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-        }
-        
-        .contact-card:hover {
-            border-color: #d1fae5;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .contact-infoxx .name {
-            font-size: 16px;
-            font-weight: 600;
-            margin: 0 0 4px;
-            color: #1e293b;
-        }
-
-        .contact-infoxx .details {
-            font-size: 13px;
-            color: #64748b;
-            margin: 0;
-        }
-
-        .status-buttons {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #fff;
-            cursor: default;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .btn.success {
-            background-color: #10b981;
-        }
-
-        .btn.danger {
-            background-color: #64748b;
-        }
-        
-        .delete {
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #fff;
-            background-color: #f87171;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            border: none;
-        }
-        
-        .delete:hover {
-            background-color: #ef4444;
-            transform: scale(1.05);
-        }
-        
-        .btn-primary {
-            background: #10b981;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            background: #059669;
-        }
-        
-        .checkbox-group {
-            margin-top: 16px;
-        }
-        
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #1e293b;
-            font-size: 14px;
-            margin: 8px 0;
-            cursor: pointer;
-        }
-        
-        .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
-        h4 {
-            color: #1e293b;
-            font-size: 15px;
-            font-weight: 600;
-            margin: 20px 0 12px 0;
-        }
-
     </style>
 </head>
-<body>
-    {% include 'navbar.html' %}
-    <div class="dashboard-container">
-        <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
-        
-        <!-- Profile Section -->
-        <div class="dashboard-section">
-            <h2><i class="fas fa-user-circle"></i> Profile Information</h2>
-            <div class="profile-card">
-                <div class="profile-picture">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="profile-info">
-                    <p style="font-size: 22px; font-weight: 500;">Administrator</p>
-                    <p><strong>Current Email:</strong> {{ admin.email }}</p>
-                    <p><strong>Phone Number:</strong> {{ admin.phone_number }}</p>
-
-                    <!-- Button to show the form -->
-                    <button id="show-form-btn" class="simple-btn">Update Info</button>
-
-                    <!-- Hidden form -->
-                    <div id="update-form" style="display: none; margin-top: 15px;">
-                        <form method="post">
-                            {% csrf_token %}
-                            {{ form.as_p }}
-                            <button type="submit" class="simple-btn">Save</button>
-                        </form>
-                    </div>
-
-                    <script>
-                    document.getElementById("show-form-btn").addEventListener("click", function() {
-                        const formDiv = document.getElementById("update-form");
-                        if (formDiv.style.display === "none") {
-                            formDiv.style.display = "block";   // show the form
-                            this.style.display = "none";       // hide the update button
-                        }
-                    });
-                    </script>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- Contact Information -->
-        <div class="dashboard-section">
-            <h2><i class="fas fa-address-book"></i> Add Guardian </h2>
-            <div class="contact-info">
-
-                <form method="post">
-                {% csrf_token %}
-                    <div class="contact-item">
-                        <label>Name:</label>
-                        <input name="name" type="text" class="guard-name" placeholder="Name">
-                    </div>
-                    <div class="contact-item">
-                        <label>Email:</label>
-                        <input name="email" type="email" class="guard-email" placeholder="Email">
-                    </div>
-                    <div class="contact-item">
-                        <label>Number:</label>
-                        <input name="number" type="number" class="guard-number" placeholder="Number">
-                    </div>
-                    <h4>Alert Platform</h4>
-                    <div>
-                        <label>
-                            <input type="checkbox" name="whatsapp_enabled" value="whatsapp_enabled"> Whatsapp
-                        </label><br>
-
-                        <label>
-                            <input type="checkbox" name="email_enabled" value="email_enabled"> Email
-                        </label><br>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" style="width: 200px;"><i class="fa fa-plus"></i> Add</button>
-                </form>
-
-            </div>
-        </div>
-
-        <!-- Guardian Contact Settings -->
-        <div class="dashboard-section">
-            <h2><i class="fas fa-cog"></i> Guardian Alert Settings</h2>
-            {% for contact in contacts %}
-            <div class="contact-card">
-                
-                <div class="contact-infoxx">
-                    <p class="name">{{contact.name}}</p>
-                    <p class="details">{{contact.phone_number}} | {{contact.email}}</p>
-                </div>
-                <div class="status-buttons">
-                    <span class="btn {% if contact.whatsapp_enabled %}success{% else %}danger{% endif %}">
-                        WhatsApp {% if contact.whatsapp_enabled %}{% else %}{% endif %}
-                    </span> 
-
-                    <span class="btn {% if contact.email_enabled %}success{% else %}danger{% endif %}">
-                        Email {% if contact.email_enabled %}{% else %}{% endif %}
-                    </span>
-                    <a href="{% url 'delete' contact.pk %}" class="delete"><i class="fa-solid fa-trash"></i></a>
-                </div>    
-            </div>
-            {% endfor %}
-        </div>
+<body class="h-full">
+    
+    <!-- Navbar Placeholder (Assumed you have a styled navbar, wrapping it to ensure it sits top) -->
+    <div class="bg-white shadow-sm sticky top-0 z-50">
+        {% include 'navbar.html' %}
     </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        
+        <!-- Page Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-500">Manage your profile and emergency contacts.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- LEFT COLUMN: Profile -->
+            <div class="lg:col-span-1">
+                <div class="bg-white overflow-hidden shadow-sm rounded-xl border border-gray-100">
+                    <div class="p-6">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <div class="h-16 w-16 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 text-2xl">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-900">Administrator</h2>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 border-t border-gray-100 pt-6">
+                            <div>
+                                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Email Address</label>
+                                <p class="text-sm font-medium text-gray-900 mt-1">{{ admin.email }}</p>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Phone Number</label>
+                                <p class="text-sm font-medium text-gray-900 mt-1">{{ admin.phone_number }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Update Profile Toggle -->
+                        <div class="mt-8">
+                            <button id="show-form-btn" class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-all">
+                                <i class="fas fa-pen mr-2 text-xs"></i> Edit Profile
+                            </button>
+
+                            <!-- Hidden Form -->
+                            <div id="update-form" class="hidden mt-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <form method="post" class="django-form">
+                                    {% csrf_token %}
+                                    {{ form.as_p }}
+                                    <div class="flex gap-2 mt-4">
+                                        <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">Save</button>
+                                        <button type="button" id="cancel-btn" class="flex-1 bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Guardian Management -->
+            <div class="lg:col-span-2 space-y-8">
+                
+                <!-- Add Guardian Section -->
+                <div class="bg-white shadow-sm rounded-xl border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-user-plus text-indigo-500 mr-2"></i> Add Guardian
+                        </h2>
+                    </div>
+
+                    <form method="post" class="space-y-4">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Name -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-user text-gray-400 text-xs"></i>
+                                    </div>
+                                    <input type="text" name="name" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-lg py-2" placeholder="e.g. Jane Doe">
+                                </div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-envelope text-gray-400 text-xs"></i>
+                                    </div>
+                                    <input type="email" name="email" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-lg py-2" placeholder="jane@example.com">
+                                </div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <div class="relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <i class="fas fa-phone text-gray-400 text-xs"></i>
+                                    </div>
+                                    <input type="number" name="number" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-8 sm:text-sm border-gray-300 rounded-lg py-2" placeholder="+1234567890">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Platform Toggles -->
+                        <div class="bg-gray-50 rounded-lg p-4 mt-4 border border-gray-200">
+                            <span class="block text-sm font-medium text-gray-700 mb-3">Alert Platforms</span>
+                            <div class="flex space-x-6">
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="checkbox" name="whatsapp_enabled" value="whatsapp_enabled" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 h-5 w-5">
+                                    <span class="ml-2 text-sm text-gray-600 group-hover:text-indigo-600 transition-colors"><i class="fab fa-whatsapp text-green-500 mr-1"></i> WhatsApp</span>
+                                </label>
+                                <label class="inline-flex items-center cursor-pointer group">
+                                    <input type="checkbox" name="email_enabled" value="email_enabled" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 h-5 w-5">
+                                    <span class="ml-2 text-sm text-gray-600 group-hover:text-indigo-600 transition-colors"><i class="far fa-envelope text-blue-500 mr-1"></i> Email</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <button type="submit" class="w-full sm:w-auto flex justify-center py-2.5 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
+                                <i class="fas fa-plus mr-2 mt-0.5"></i> Add Guardian
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Guardian List Section -->
+                <div class="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                        <h2 class="text-lg font-bold text-gray-900">
+                            <i class="fas fa-users text-indigo-500 mr-2"></i> Active Guardians
+                        </h2>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full">{{ contacts|length }}</span>
+                    </div>
+
+                    <ul class="divide-y divide-gray-100">
+                        {% for contact in contacts %}
+                        <li class="p-6 hover:bg-gray-50 transition-colors">
+                            <div class="flex items-center justify-between flex-wrap gap-4">
+                                <!-- Info -->
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-sm font-bold text-gray-900 truncate">
+                                        {{ contact.name }}
+                                    </h3>
+                                    <div class="mt-1 flex flex-col sm:flex-row sm:flex-wrap sm:space-x-6">
+                                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-phone-alt flex-shrink-0 mr-1.5 text-gray-400 text-xs"></i>
+                                            {{ contact.phone_number }}
+                                        </div>
+                                        <div class="mt-1 flex items-center text-sm text-gray-500">
+                                            <i class="fas fa-envelope flex-shrink-0 mr-1.5 text-gray-400 text-xs"></i>
+                                            {{ contact.email }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Status Badges & Actions -->
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex space-x-2">
+                                        <!-- WhatsApp Badge -->
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            {% if contact.whatsapp_enabled %} bg-green-100 text-green-800 {% else %} bg-gray-100 text-gray-400 opacity-60 {% endif %}">
+                                            <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                                        </span>
+                                        
+                                        <!-- Email Badge -->
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            {% if contact.email_enabled %} bg-blue-100 text-blue-800 {% else %} bg-gray-100 text-gray-400 opacity-60 {% endif %}">
+                                            <i class="fas fa-envelope mr-1"></i> Email
+                                        </span>
+                                    </div>
+
+                                    <div class="h-6 w-px bg-gray-200 mx-2"></div>
+
+                                    <a href="{% url 'delete' contact.pk %}" class="text-gray-400 hover:text-red-600 transition-colors p-2 rounded-full hover:bg-red-50" title="Remove Guardian">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li class="p-12 text-center">
+                            <div class="text-gray-400 text-4xl mb-3"><i class="fas fa-user-friends"></i></div>
+                            <h3 class="text-gray-900 font-medium">No guardians added yet</h3>
+                            <p class="text-gray-500 text-sm mt-1">Add a guardian above to ensure alerts are sent during emergencies.</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const showBtn = document.getElementById("show-form-btn");
+            const cancelBtn = document.getElementById("cancel-btn");
+            const formDiv = document.getElementById("update-form");
+            
+            showBtn.addEventListener("click", function() {
+                formDiv.classList.remove("hidden");
+                this.classList.add("hidden");
+            });
+
+            cancelBtn.addEventListener("click", function() {
+                formDiv.classList.add("hidden");
+                showBtn.classList.remove("hidden");
+            });
+        });
+    </script>
 </body>
 </html>

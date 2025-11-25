@@ -1,355 +1,262 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fall Detection System</title>
+    <title>Live Monitor - Pahara</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Fall Detected Animation */
+        @keyframes emergency-flash {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); border-color: rgba(220, 38, 38, 0.2); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0.1); border-color: rgba(220, 38, 38, 1); }
         }
         
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0fdf4;
-            padding: 0;
-            margin: 0;
-            padding-top: 64px;
-            color: #1e293b;
+        .fall-detected-mode {
+            animation: emergency-flash 1s infinite;
+            border: 2px solid #dc2626 !important;
         }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px;
+
+        .fall-text-flash {
+            animation: pulse-text 1s infinite;
         }
-        
-        .header {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .header-title {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .header-icon {
-            width: 48px;
-            height: 48px;
-            background: #10b981;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-        }
-        
-        h1 {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1e293b;
-            margin: 0;
-        }
-        
-        .subtitle {
-            color: #64748b;
-            font-size: 14px;
-            margin: 4px 0 0 0;
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: #dcfce7;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 500;
-            color: #059669;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #10b981;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
+
+        @keyframes pulse-text {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
-        .video-section {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid #f1f5f9;
-        }
-        
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 80px 20px;
-            color: #64748b;
-        }
-        
-        .loading-icon {
-            width: 56px;
-            height: 56px;
-            border: 4px solid #f1f5f9;
-            border-top-color: #10b981;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 16px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .loading h3 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #1e293b;
-        }
-        
-        .loading p {
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        .video-container {
-            display: none;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .video-stream {
-            width: 100%;
-            display: block;
-        }
-        
-        .status-bar {
-            background: #f8fafc;
-            padding: 16px;
-            border-radius: 10px;
-            margin-top: 16px;
-            border: 1px solid #f1f5f9;
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        .detection-info {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 24px;
-            border: 1px solid #f1f5f9;
-            display: none;
-        }
-        
-        .detection-info h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 16px;
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .info-label {
-            font-size: 12px;
-            color: #64748b;
-            font-weight: 500;
-        }
-        
-        .info-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1e293b;
-        }
-        
-        .status {
-            padding: 12px 16px;
-            margin: 12px 0;
-            border-radius: 8px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-        }
-        
-        .status.success {
-            background: #dcfce7;
-            color: #059669;
-            border: 1px solid #bbf7d0;
-        }
-        
-        .status.error {
-            background: #fef2f2;
-            color: #dc2626;
-            border: 1px solid #fecaca;
-        }
-        
-        .status.info {
-            background: #dbeafe;
-            color: #0284c7;
-            border: 1px solid #bfdbfe;
-        }
-        
-        .status-icon {
-            font-size: 16px;
-        }
-        
-        .fall-detected {
-            background: #fef2f2 !important;
-            border-color: #fecaca !important;
-            color: #dc2626;
-            animation: flash 1s infinite;
-        }
-        
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
     </style>
 </head>
-<body>
+<body class="h-full flex flex-col">
+    
+    <!-- Include Navbar -->
     {% include 'navbar.html' %}
-    <div class="container">
-        <div class="header">
-            <div class="header-title">
-                <div class="header-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div>
-                    <h1>Fall Detection System</h1>
-                    <p class="subtitle">Automatic fall detection with real-time monitoring</p>
-                </div>
-            </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span>Active</span>
-            </div>
-        </div>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <div class="video-section">
-            <div id="loading" class="loading">
-                <div class="loading-icon"></div>
-                <h3>Starting webcam and fall detection...</h3>
-                <p>Please wait while the system initializes</p>
+        <!-- Header Section -->
+        <div class="md:flex md:items-center md:justify-between mb-6">
+            <div class="flex-1 min-w-0">
+                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                    Live Monitor
+                </h2>
+                <p class="mt-1 text-sm text-gray-500">
+                    Real-time AI analysis powered by YOLOv8
+                </p>
             </div>
-            
-            <div id="videoContainer" class="video-container">
-                <img id="videoStream" class="video-stream" src="" alt="Fall Detection Stream">
+            <div class="mt-4 flex md:mt-0 md:ml-4 gap-3 items-center">
+                <span id="systemStatusBadge" class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <span class="flex h-2 w-2 relative mr-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    System Active
+                </span>
+                <button id="stopStartButton" onclick="toggleSystem()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-stop mr-2"></i>
+                    <span id="stopStartButtonText">Stop Monitoring</span>
+                </button>
             </div>
+        </div>
+
+        <!-- Main Video Container -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200" id="main-monitor-card">
             
-            <div id="status" class="status info">
-                <i class="fas fa-circle-notch fa-spin status-icon"></i>
-                <span>Initializing...</span>
+            <!-- Video Feed Area -->
+            <div class="relative bg-gray-900 aspect-video flex items-center justify-center overflow-hidden group">
+                
+                <!-- Loading State -->
+                <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-gray-900">
+                    <div class="relative">
+                        <div class="w-16 h-16 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-video text-indigo-500 text-sm"></i>
+                        </div>
+                    </div>
+                    <h3 class="mt-4 text-white font-medium tracking-wide">Initializing Optical Sensors...</h3>
+                    <p class="text-gray-500 text-sm mt-2" id="loading-text">Connecting to camera feed</p>
+                </div>
+
+                <!-- Actual Video Stream -->
+                <div id="videoContainer" class="w-full h-full hidden relative">
+                    <img id="videoStream" class="w-full h-full object-contain" src="" alt="Fall Detection Stream">
+                    
+                    <!-- Camera Overlays (UI Candy) -->
+                    <div class="absolute top-4 left-4 flex gap-2">
+                        <div class="bg-red-600/90 text-white text-xs font-bold px-2 py-1 rounded flex items-center">
+                            <div class="w-2 h-2 bg-white rounded-full mr-1.5 animate-pulse"></div> REC
+                        </div>
+                        <div class="bg-black/50 backdrop-blur text-white text-xs font-mono px-2 py-1 rounded border border-white/10">
+                            CAM-01
+                        </div>
+                    </div>
+                    <div class="absolute bottom-4 right-4 bg-black/50 backdrop-blur text-white text-xs font-mono px-2 py-1 rounded border border-white/10">
+                        AI: ENABLED
+                    </div>
+                    <!-- Crosshairs (Decorative) -->
+                    <div class="absolute inset-0 pointer-events-none opacity-20">
+                        <div class="absolute top-1/2 left-1/2 w-4 h-4 border-l border-t border-white -translate-x-1/2 -translate-y-1/2"></div>
+                        <div class="absolute top-1/2 left-1/2 w-4 h-4 border-r border-b border-white -translate-x-1/2 -translate-y-1/2"></div>
+                    </div>
+                </div>
+
             </div>
-            
-            <div id="detectionInfo" class="detection-info">
-                <h3><i class="fas fa-chart-line"></i> Detection Status</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <span class="info-label">Status</span>
-                        <span class="info-value" id="detectionStatus">-</span>
+
+            <!-- Control & Status Panel -->
+            <div class="bg-white border-t border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-gray-200">
+                    
+                    <!-- Stat 1: Status -->
+                    <div class="p-4 flex items-center justify-between md:block">
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Detection Status</p>
+                        <div class="mt-1 flex items-center">
+                            <span id="detectionStatus" class="text-lg font-bold text-gray-900">Standby</span>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Detections</span>
-                        <span class="info-value" id="detectionCount">0</span>
+
+                    <!-- Stat 2: Count -->
+                    <div class="p-4 flex items-center justify-between md:block">
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Events Detected</p>
+                        <div class="mt-1 flex items-center gap-2">
+                            <span id="detectionCount" class="text-2xl font-bold text-indigo-600">0</span>
+                            <span class="text-xs text-gray-400">Total</span>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Last Update</span>
-                        <span class="info-value" id="lastUpdate">-</span>
+
+                    <!-- Stat 3: Alerts -->
+                    <div class="p-4 flex items-center justify-between md:block">
+                        <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Alert System</p>
+                        <div class="mt-1">
+                            <div class="flex items-center gap-2">
+                                <span id="alertStatus" class="font-semibold text-gray-900">Checking...</span>
+                                <span id="alertCountBadge" class="hidden bg-red-100 text-red-800 text-xs font-bold px-2 py-0.5 rounded-full">0 Sent</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Alert System</span>
-                        <span class="info-value" id="alertStatus">Active</span>
+
+                    <!-- Stat 4: System Log -->
+                    <div class="p-4 bg-gray-50 flex items-center">
+                        <div id="status-bar" class="w-full">
+                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                <i class="fas fa-terminal text-gray-400"></i>
+                                <span id="status-message" class="truncate">System ready.</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="info-item">
-                        <span class="info-label">Alerts Sent</span>
-                        <span class="info-value" id="alertCount">0</span>
-                    </div>
+
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Emergency Instructions (Visible only if needed, or purely informational) -->
+        <div class="mt-6 bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-start gap-3">
+            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+            <div>
+                <h4 class="text-sm font-medium text-blue-900">How detection works</h4>
+                <p class="text-sm text-blue-700 mt-1">
+                    Keep the camera stable and ensuring good lighting. If a fall is detected, the border will flash red and alerts will be dispatched to WhatsApp immediately.
+                </p>
+            </div>
+        </div>
+
+    </main>
 
     <script>
         let isInitialized = false;
         let detectionInterval;
+        let alertInterval;
+        let systemRunning = false;
 
-        function updateStatus(message, type = 'info') {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = `status ${type}`;
+        // UI Helpers
+        const ui = {
+            loading: document.getElementById('loading'),
+            loadingText: document.getElementById('loading-text'),
+            videoContainer: document.getElementById('videoContainer'),
+            videoStream: document.getElementById('videoStream'),
+            message: document.getElementById('status-message'),
+            monitorCard: document.getElementById('main-monitor-card'),
+            
+            // Stats
+            detStatus: document.getElementById('detectionStatus'),
+            detCount: document.getElementById('detectionCount'),
+            alertStatus: document.getElementById('alertStatus'),
+            alertBadge: document.getElementById('alertCountBadge'),
+            
+            // Control elements
+            stopStartButton: document.getElementById('stopStartButton'),
+            stopStartButtonText: document.getElementById('stopStartButtonText'),
+            systemStatusBadge: document.getElementById('systemStatusBadge')
+        };
+
+        function updateLog(msg, type = 'normal') {
+            ui.message.textContent = msg;
+            if(type === 'error') ui.message.classList.add('text-red-600');
+            else ui.message.classList.remove('text-red-600');
         }
 
-        function updateDetectionInfo(status, count, timestamp) {
-            document.getElementById('detectionStatus').textContent = status;
-            document.getElementById('detectionCount').textContent = count;
-            document.getElementById('lastUpdate').textContent = new Date(timestamp * 1000).toLocaleTimeString();
+        function setEmergencyMode(active) {
+            if (active) {
+                ui.monitorCard.classList.add('fall-detected-mode');
+                ui.detStatus.innerHTML = '<span class="text-red-600 fall-text-flash"><i class="fas fa-exclamation-triangle mr-1"></i> FALL DETECTED</span>';
+                updateLog("CRITICAL: Fall detected! Dispatching alerts...", "error");
+            } else {
+                ui.monitorCard.classList.remove('fall-detected-mode');
+                ui.detStatus.innerHTML = '<span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> Monitoring</span>';
+            }
         }
+
+        // --- Core Logic ---
 
         function updateAlertInfo() {
             fetch('/alerts/status/')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('alertStatus').textContent = data.alert_enabled ? 'Active' : 'Disabled';
-                document.getElementById('alertCount').textContent = data.alert_count;
+                const enabled = data.alert_enabled;
+                const count = data.alert_count;
+                
+                ui.alertStatus.textContent = enabled ? 'Active & Ready' : 'Disabled';
+                ui.alertStatus.className = enabled ? 'font-semibold text-green-600' : 'font-semibold text-gray-500';
+                
+                if (count > 0) {
+                    ui.alertBadge.textContent = `${count} Sent`;
+                    ui.alertBadge.classList.remove('hidden');
+                }
             })
-            .catch(error => {
-                console.error('Error fetching alert status:', error);
-            });
+            .catch(err => console.error("Alert poll error", err));
         }
 
-        function showVideo() {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('videoContainer').style.display = 'block';
-            document.getElementById('detectionInfo').style.display = 'block';
+        function updateDetectionResults() {
+            if (!isInitialized) return;
+            
+            fetch('/detection/status/')
+            .then(response => response.json())
+            .then(data => {
+                const count = data.detection_count;
+                const fallDetected = data.fall_detected;
+                
+                // Update Count
+                ui.detCount.textContent = count;
+                
+                // Toggle Emergency UI
+                setEmergencyMode(fallDetected);
+            })
+            .catch(err => console.error('Detection poll error:', err));
         }
 
-        function initializeSystem() {
-            // Start webcam
+        function startSystem() {
+            if (systemRunning) {
+                updateLog("System is already running.");
+                return;
+            }
+            
+            updateLog("Requesting camera access...");
+            ui.stopStartButton.disabled = true;
+            
             fetch('/webcam/start/', {
                 method: 'POST',
                 headers: {
@@ -357,12 +264,13 @@
                     'Content-Type': 'application/json',
                 },
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    updateStatus('Webcam started successfully!', 'success');
+                    ui.loadingText.textContent = "Webcam active. Loading neural network...";
+                    updateLog("Webcam started.");
                     
-                    // Enable detection immediately
+                    // Enable AI
                     return fetch('/detection/enable/', {
                         method: 'POST',
                         headers: {
@@ -374,58 +282,156 @@
                     throw new Error(data.message);
                 }
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    updateStatus('Fall detection enabled! System is ready.', 'success');
-                    showVideo();
-                    startVideoStream();
-                    startDetectionMonitoring();
-                    updateAlertInfo(); // Load initial alert status
+                    // Success State
+                    ui.loading.classList.add('hidden');
+                    ui.videoContainer.classList.remove('hidden');
+                    ui.videoStream.src = '/stream/video/';
+                    
+                    updateLog("System online. AI Monitoring active.");
                     isInitialized = true;
+                    systemRunning = true;
+                    
+                    // Update UI state
+                    updateSystemState(true);
+                    
+                    // Start Polling
+                    startDetectionMonitoring();
+                    updateAlertInfo();
                 } else {
                     throw new Error(data.message);
                 }
             })
-            .catch(error => {
-                updateStatus(`Error: ${error.message}`, 'error');
-                console.error('Initialization error:', error);
+            .catch(err => {
+                ui.loadingText.textContent = "Initialization Failed";
+                ui.loadingText.classList.add('text-red-500');
+                updateLog(`Error: ${err.message}`, 'error');
+                systemRunning = false;
+                updateSystemState(false);
+            })
+            .finally(() => {
+                ui.stopStartButton.disabled = false;
             });
         }
 
-        function startVideoStream() {
-            // Start the video stream
-            document.getElementById('videoStream').src = '/stream/video/';
+        function stopSystem() {
+            if (!systemRunning) {
+                updateLog("System is already stopped.");
+                return;
+            }
+            
+            updateLog("Stopping monitoring system...");
+            ui.stopStartButton.disabled = true;
+            
+            // Stop detection first
+            fetch('/detection/disable/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateLog("Detection disabled.");
+                
+                // Stop webcam
+                return fetch('/webcam/stop/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                });
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Clear intervals
+                if (detectionInterval) {
+                    clearInterval(detectionInterval);
+                    detectionInterval = null;
+                }
+                if (alertInterval) {
+                    clearInterval(alertInterval);
+                    alertInterval = null;
+                }
+                
+                // Update state
+                isInitialized = false;
+                systemRunning = false;
+                
+                // Update UI
+                updateSystemState(false);
+                
+                // Hide video, show stopped message
+                ui.videoContainer.classList.add('hidden');
+                ui.loading.classList.remove('hidden');
+                ui.loadingText.textContent = "System Stopped";
+                ui.loadingText.classList.remove('text-red-500');
+                
+                updateLog("System stopped. Click 'Start Monitoring' to resume.");
+            })
+            .catch(err => {
+                updateLog(`Error stopping system: ${err.message}`, 'error');
+            })
+            .finally(() => {
+                ui.stopStartButton.disabled = false;
+            });
+        }
+
+        function toggleSystem() {
+            if (systemRunning) {
+                stopSystem();
+            } else {
+                startSystem();
+            }
+        }
+
+        function updateSystemState(running) {
+            systemRunning = running;
+            
+            if (running) {
+                // Update button to show "Stop"
+                ui.stopStartButtonText.textContent = "Stop Monitoring";
+                ui.stopStartButton.className = "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed";
+                ui.stopStartButton.innerHTML = '<i class="fas fa-stop mr-2"></i><span id="stopStartButtonText">Stop Monitoring</span>';
+                
+                // Update status badge
+                ui.systemStatusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800";
+                ui.systemStatusBadge.innerHTML = `
+                    <span class="flex h-2 w-2 relative mr-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    System Active
+                `;
+            } else {
+                // Update button to show "Start"
+                ui.stopStartButtonText.textContent = "Start Monitoring";
+                ui.stopStartButton.className = "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed";
+                ui.stopStartButton.innerHTML = '<i class="fas fa-play mr-2"></i><span id="stopStartButtonText">Start Monitoring</span>';
+                
+                // Update status badge
+                ui.systemStatusBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800";
+                ui.systemStatusBadge.innerHTML = `
+                    <span class="flex h-2 w-2 relative mr-2">
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-gray-500"></span>
+                    </span>
+                    System Stopped
+                `;
+            }
+            
+            // Re-get the text element after innerHTML update
+            ui.stopStartButtonText = document.getElementById('stopStartButtonText');
         }
 
         function startDetectionMonitoring() {
-            detectionInterval = setInterval(updateDetectionResults, 1000); // Update every second
-            // Also update alert info periodically
-            setInterval(updateAlertInfo, 5000); // Update every 5 seconds
-        }
-
-        function updateDetectionResults() {
-            if (!isInitialized) return;
-            
-            fetch('/detection/status/')
-            .then(response => response.json())
-            .then(data => {
-                const detectionCount = data.detection_count;
-                const fallDetected = data.fall_detected;
-                
-                let status = 'Active';
-                if (fallDetected) {
-                    status = '🚨 FALL DETECTED!';
-                    document.getElementById('detectionInfo').classList.add('fall-detected');
-                } else {
-                    document.getElementById('detectionInfo').classList.remove('fall-detected');
-                }
-                
-                updateDetectionInfo(status, detectionCount, Date.now() / 1000);
-            })
-            .catch(error => {
-                console.error('Error fetching detection results:', error);
-            });
+            // Poll detection status rapidly (1s)
+            detectionInterval = setInterval(updateDetectionResults, 1000);
+            // Poll alert status slower (5s)
+            alertInterval = setInterval(updateAlertInfo, 5000);
         }
 
         function getCookie(name) {
@@ -443,17 +449,11 @@
             return cookieValue;
         }
 
-        // Initialize system on page load
-        window.onload = function() {
-            updateStatus('Starting fall detection system...', 'info');
-            initializeSystem();
-        };
-
-        // Cleanup on page unload
-        window.onbeforeunload = function() {
-            if (detectionInterval) {
-                clearInterval(detectionInterval);
-            }
+        // Init
+        window.onload = startSystem;
+        window.onbeforeunload = () => {
+            if (detectionInterval) clearInterval(detectionInterval);
+            if (alertInterval) clearInterval(alertInterval);
         };
     </script>
 </body>

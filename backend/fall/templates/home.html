@@ -1,234 +1,241 @@
+{% load static %}
 <!DOCTYPE html>
-
-<html lang="en">
-
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fall Detection System</title>
+    <title>Pahara - Intelligent Fall Detection</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0fdf4;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            color: #1e293b;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05), 0 10px 25px rgba(0,0,0,0.08);
-            padding: 48px;
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-            animation: fadeIn 0.4s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .header-icon {
-            width: 72px;
-            height: 72px;
-            background: #10b981;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-        }
-        
-        .header-icon i {
-            color: white;
-            font-size: 32px;
-        }
-        
-        h1 {
-            color: #1e293b;
-            font-size: 32px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-        
-        .subtitle {
-            color: #64748b;
-            font-size: 16px;
-            margin-bottom: 32px;
-            line-height: 1.5;
-        }
-        
-        .main-button {
-            background: #10b981;
-            color: white;
-            padding: 14px 32px;
-            font-size: 16px;
-            font-weight: 500;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
-        }
-        
-        .main-button:hover {
-            background: #059669;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-        }
-        
-        .main-button:active {
-            transform: translateY(0);
-        }
-        
-        .features {
-            margin-top: 48px;
-            text-align: left;
-        }
-        
-        .feature {
-            margin: 16px 0;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border: 1px solid #f1f5f9;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            transition: all 0.2s ease;
-        }
-        
-        .feature:hover {
-            background: #f0fdf4;
-            border-color: #d1fae5;
-            transform: translateX(4px);
-        }
-        
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            background: #dcfce7;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #10b981;
-            flex-shrink: 0;
-        }
-        
-        .feature-icon i {
-            font-size: 18px;
-        }
-        
-        .feature-content {
-            flex: 1;
-        }
-        
-        .feature-title {
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 4px;
-            font-size: 15px;
-        }
-        
-        .feature-description {
-            color: #64748b;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .test-section {
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid #f1f5f9;
-        }
-        
-        .test-button {
-            background: white;
-            color: #64748b;
-            padding: 10px 20px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .test-button:hover {
-            background: #f8fafc;
-            color: #10b981;
-            border-color: #d1fae5;
+        body { font-family: 'Inter', sans-serif; }
+        .blob {
+            position: absolute;
+            filter: blur(40px);
+            z-index: -1;
+            opacity: 0.4;
         }
     </style>
 </head>
+<body class="antialiased bg-white text-gray-900">
 
-<body>  
-    <div class="container">
-        <div class="header-icon">
-            <i class="fas fa-shield-alt"></i>
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md fixed w-full z-50 top-0 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2">
+                    <div class="bg-indigo-600 text-white p-1.5 rounded-lg">
+                        <i class="fas fa-shield-alt text-lg"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-gray-900">Pahara</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#features" class="text-sm font-medium text-gray-500 hover:text-gray-900">Features</a>
+                    <a href="#how-it-works" class="text-sm font-medium text-gray-500 hover:text-gray-900">How it Works</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Dashboard</a>
+                        <a href="{% url 'fall_detection' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                            Launch Monitor
+                        </a>
+                    {% else %}
+                        <a href="{% url 'loginout' %}" class="text-sm font-medium text-gray-500 hover:text-gray-900">Log in</a>
+                        <a href="{% url 'signup' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                            Sign Up
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-        <h1>PAHARA</h1>
-        <h1>Fall Detection System</h1>
-        <p class="subtitle">AI-powered fall detection with real-time monitoring</p>
-        
-        <a href="{% url 'fall_detection' %}" class="main-button">
-            Start Fall Detection
-        </a>
-        
-        <div class="features">
-            <div class="feature">
-                <div class="feature-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="feature-content">
-                    <div class="feature-title">AI Detection</div>
-                    <div class="feature-description">Automatic fall detection using YOLO model</div>
-                </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
+        <!-- Background Decor -->
+        <div class="blob bg-purple-200 w-96 h-96 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="blob bg-blue-200 w-96 h-96 rounded-full bottom-0 right-0 translate-x-1/2 translate-y-1/2"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold tracking-wide uppercase mb-6 border border-indigo-100">
+                <span class="w-2 h-2 bg-indigo-600 rounded-full mr-2 animate-pulse"></span>
+                v2.0 Now Live
             </div>
-            <div class="feature">
-                <div class="feature-icon">
-                    <i class="fas fa-bell"></i>
-                </div>
-                <div class="feature-content">
-                    <div class="feature-title">Instant Alerts</div>
-                    <div class="feature-description">WhatsApp notifications when falls are detected</div>
-                </div>
+            
+            <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl mb-6">
+                <span class="block">Guardian of Safety</span>
+                <span class="block text-indigo-600">Powered by AI</span>
+            </h1>
+            
+            <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
+                Real-time fall detection monitoring that instantly alerts loved ones via WhatsApp. Secure, fast, and reliable protection for those who need it most.
+            </p>
+            
+            <div class="mt-10 max-w-sm mx-auto sm:max-w-none sm:flex sm:justify-center gap-4">
+                <a href="{% url 'fall_detection' %}" class="flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg shadow-lg shadow-indigo-200 transition-all hover:-translate-y-1">
+                    <i class="fas fa-play mr-2"></i> Start Detection
+                </a>
+                <a href="#how-it-works" class="flex items-center justify-center px-8 py-3 border border-gray-200 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg transition-all hover:-translate-y-1">
+                    Learn more
+                </a>
             </div>
-            <div class="feature">
-                <div class="feature-icon">
-                    <i class="fas fa-video"></i>
-                </div>
-                <div class="feature-content">
-                    <div class="feature-title">Live Monitoring</div>
-                    <div class="feature-description">Real-time video streaming with detection overlays</div>
+
+            <!-- Hero Image / Visual Representation -->
+            <div class="mt-16 relative max-w-4xl mx-auto">
+                <div class="rounded-2xl bg-gray-900 p-2 shadow-2xl ring-1 ring-gray-900/10">
+                    <div class="rounded-xl overflow-hidden bg-gray-800 aspect-video relative flex items-center justify-center border border-gray-700">
+                        <!-- Simulated Interface -->
+                        <div class="absolute top-4 left-4 flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        </div>
+                        <div class="text-center">
+                            <div class="animate-pulse mb-4">
+                                <i class="fas fa-video text-gray-600 text-6xl"></i>
+                            </div>
+                            <p class="text-gray-400 font-mono text-sm">Waiting for camera input...</p>
+                        </div>
+                        
+                        <!-- Floating Notification Mockup -->
+                        <div class="absolute bottom-6 right-6 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-lg flex items-center gap-3 max-w-xs animate-bounce" style="animation-duration: 3s;">
+                            <div class="bg-green-500 rounded-full p-2">
+                                <i class="fab fa-whatsapp text-white"></i>
+                            </div>
+                            <div class="text-left">
+                                <p class="text-white text-xs font-bold">Alert Sent</p>
+                                <p class="text-gray-300 text-[10px]">Guardian notified successfully.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Features Section (Dark/Secure Theme) -->
+    <div id="features" class="bg-slate-900 py-24 relative overflow-hidden">
+        <!-- Abstract grid background -->
+        <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#6366f1 1px, transparent 1px); background-size: 32px 32px;"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-base text-indigo-400 font-semibold tracking-wide uppercase">Why Choose Pahara?</h2>
+                <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
+                    Security you can trust.
+                </p>
+                <p class="mt-4 max-w-2xl text-xl text-slate-400 mx-auto">
+                    We combine advanced computer vision with instant communication protocols to ensure safety.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Feature 1 -->
+                <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 hover:bg-slate-800 transition-all duration-300">
+                    <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-brain text-indigo-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">AI Powered Vision</h3>
+                    <p class="text-slate-400">
+                        Utilizing the YOLO (You Only Look Once) model to detect falls with high accuracy in real-time video streams.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 hover:bg-slate-800 transition-all duration-300">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fab fa-whatsapp text-green-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Instant Alerts</h3>
+                    <p class="text-slate-400">
+                        Zero latency notification system. When a fall is detected, we instantly trigger a WhatsApp message to guardians.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="bg-slate-800/50 backdrop-blur border border-slate-700 rounded-2xl p-8 hover:bg-slate-800 transition-all duration-300">
+                    <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6">
+                        <i class="fas fa-lock text-purple-400 text-xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-3">Private & Secure</h3>
+                    <p class="text-slate-400">
+                        Your monitoring stream is processed locally or securely. We prioritize privacy and data protection standards.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div id="how-it-works" class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900">How It Works</h2>
+                <p class="mt-4 text-gray-500">Simple setup for maximum protection.</p>
+            </div>
+
+            <div class="relative">
+                <!-- Connecting Line -->
+                <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-gray-200 -translate-y-1/2 z-0"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                    <!-- Step 1 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
+                        <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 ring-4 ring-indigo-50">1</div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Create Account</h3>
+                        <p class="text-gray-500 text-sm">Sign up and add your emergency contacts (Guardians) in the dashboard.</p>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
+                        <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 ring-4 ring-indigo-50">2</div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Position Camera</h3>
+                        <p class="text-gray-500 text-sm">Set up your webcam or monitoring device in the area you want to secure.</p>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center">
+                        <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6 ring-4 ring-indigo-50">3</div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">Stay Protected</h3>
+                        <p class="text-gray-500 text-sm">Launch the monitor. If a fall happens, help is alerted immediately.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-indigo-600">
+        <div class="max-w-2xl mx-auto text-center py-16 px-4 sm:py-20 sm:px-6 lg:px-8">
+            <h2 class="text-3xl font-extrabold text-white sm:text-4xl">
+                <span class="block">Ready to ensure safety?</span>
+            </h2>
+            <p class="mt-4 text-lg leading-6 text-indigo-100">
+                Join Pahara today and give yourself peace of mind with our advanced detection system.
+            </p>
+            <a href="{% url 'signup' %}" class="mt-8 w-full inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-indigo-50 sm:w-auto">
+                Get Started for Free
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="md:flex md:items-center md:justify-between">
+                <div class="flex justify-center md:justify-start gap-2 items-center text-white">
+                    <i class="fas fa-shield-alt text-indigo-500"></i>
+                    <span class="font-bold text-lg">Pahara</span>
+                </div>
+                <div class="mt-8 md:mt-0">
+                    <p class="text-center text-base text-gray-400">
+                        &copy; 2023 Pahara Inc. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
 </body>
 </html>

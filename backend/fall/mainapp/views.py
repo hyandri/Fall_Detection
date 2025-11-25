@@ -107,8 +107,29 @@ def send_whatsapp_message(phone_number, message_text):
         # Send message
         response = requests.post(WHATSAPP_API_URL, headers=headers, json=payload)
         
+        # Log the full response for debugging
+        print(f"📤 WhatsApp API Response Status: {response.status_code}")
+        print(f"📤 WhatsApp API Response Body: {response.text}")
+        
         if response.status_code == 200:
-            return True, None
+            # Check if response contains error even with 200 status
+            try:
+                response_data = response.json()
+                if 'error' in response_data:
+                    error_code = response_data.get('error', {}).get('code', '')
+                    error_message = response_data.get('error', {}).get('message', '')
+                    error_msg = f"API returned error: {error_message} (Code: {error_code})"
+                    print(f"❌ {error_msg}")
+                    return False, error_msg
+                else:
+                    # Success - log message ID if available
+                    message_id = response_data.get('messages', [{}])[0].get('id', 'N/A')
+                    print(f"✅ WhatsApp message sent successfully. Message ID: {message_id}")
+                    return True, None
+            except:
+                # If JSON parsing fails but status is 200, assume success
+                print(f"✅ WhatsApp message sent (status 200, couldn't parse response)")
+                return True, None
         else:
             # Parse error response for better error messages
             try:
@@ -132,6 +153,7 @@ def send_whatsapp_message(phone_number, message_text):
             
     except Exception as e:
         error_msg = f"Exception: {str(e)}"
+        print(f"❌ Exception in send_whatsapp_message: {error_msg}")
         return False, error_msg
 
 
@@ -322,6 +344,10 @@ alert_history = []
 alert_lock = threading.Lock()
 alert_enabled = True
 alert_count = 0
+
+# Alert aggregation variables
+consecutive_fall_frames = 0
+FALL_THRESHOLD = 5  # Number of consecutive frames with fall detection required before alert
 
 
 
@@ -679,7 +705,8 @@ def disable_detection(request):
 
 def get_detection_status(request):
     """Get current detection status and results"""
-    global detection_enabled, latest_detections, detection_lock, last_alert_time
+    global detection_enabled, latest_detections, detection_lock, last_alert_time, ALERT_COOLDOWN
+    global consecutive_fall_frames, FALL_THRESHOLD
     
     with detection_lock:
         detections = latest_detections.copy()
@@ -691,23 +718,51 @@ def get_detection_status(request):
             fall_detected = True
             break
     
-    # Trigger enhanced alert if fall detected
-    if fall_detected:
-        # Find the fall detection with highest confidence
-        fall_detection = None
-        for detection in detections:
-            if 'fall' in detection['class_name'].lower():
-                if fall_detection is None or detection['confidence'] > fall_detection['confidence']:
-                    fall_detection = detection
-        
-        # Send enhanced alert
-        send_fall_alert(fall_detection)
+    # Alert aggregation logic: require consecutive fall detections
+    with detection_lock:
+        if fall_detected:
+            # Increment consecutive fall frame counter (cap at threshold to prevent overflow)
+            if consecutive_fall_frames < FALL_THRESHOLD:
+                consecutive_fall_frames += 1
+            print(f"📊 Fall detected - Consecutive frames: {consecutive_fall_frames}/{FALL_THRESHOLD}")
+            
+            # Only send alert if threshold reached
+            if consecutive_fall_frames >= FALL_THRESHOLD:
+                # Find the fall detection with highest confidence
+                fall_detection = None
+                for detection in detections:
+                    if 'fall' in detection['class_name'].lower():
+                        if fall_detection is None or detection['confidence'] > fall_detection['confidence']:
+                            fall_detection = detection
+                
+                # Send enhanced alert (rate limiting is handled inside send_fall_alert)
+                alert_sent = send_fall_alert(fall_detection)
+                
+                # Only reset counter if alert was successfully sent
+                # If rate limited, keep counter at threshold so we can send once cooldown expires
+                if alert_sent:
+                    consecutive_fall_frames = 0
+                    print(f"✅ Alert sent after {FALL_THRESHOLD} consecutive fall detections")
+                else:
+                    # Keep counter at threshold (don't increment further, but don't reset)
+                    consecutive_fall_frames = FALL_THRESHOLD
+                    # Calculate remaining cooldown time
+                    current_time = time.time()
+                    cooldown_remaining = max(0, ALERT_COOLDOWN - (current_time - last_alert_time))
+                    print(f"⏸️ Alert rate limited - Cooldown remaining: {cooldown_remaining:.1f}s - Will retry when cooldown expires")
+        else:
+            # Reset counter when no fall detected
+            if consecutive_fall_frames > 0:
+                print(f"🔄 No fall detected - Resetting consecutive frame counter (was at {consecutive_fall_frames})")
+            consecutive_fall_frames = 0
     
     return JsonResponse({
         'detection_enabled': detection_enabled,
         'detections': detections,
         'fall_detected': fall_detected,
-        'detection_count': len(detections)
+        'detection_count': len(detections),
+        'consecutive_fall_frames': consecutive_fall_frames,
+        'fall_threshold': FALL_THRESHOLD
     })
 
 

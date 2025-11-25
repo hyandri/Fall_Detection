@@ -1,309 +1,128 @@
 {% load static %}
-<nav class="modern-navbar">
-    <div class="nav-container">
-        <div class="nav-left">
-            <a href="{% url 'home' %}" class="nav-logo">
-                <div class="logo-icon">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <span class="logo-text">PAHARA</span>
-            </a>
-        </div>
-        
-        <div class="nav-right">
-            {% if user.is_authenticated %}
-                <!-- Authenticated Navbar -->
-                <a href="{% url 'dashboard' %}" class="nav-link">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{% url 'fall_detection' %}" class="nav-link">
-                    <i class="fas fa-video"></i>
-                    <span>Fall Detection</span>
-                </a>
-                
-                <!-- User Dropdown -->
-                <div class="nav-user-menu" onclick="toggleUserDropdown()">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
+
+<!-- Navbar -->
+<nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+            
+            <!-- Left Side: Logo -->
+            <div class="flex-shrink-0 flex items-center">
+                <a href="{% url 'home' %}" class="flex items-center gap-2 group">
+                    <div class="bg-indigo-600 text-white p-1.5 rounded-lg group-hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-shield-alt text-lg"></i>
                     </div>
-                    <span class="user-name">{{ user.username }}</span>
-                    <i class="fas fa-chevron-down dropdown-arrow"></i>
-                    
-                    <div class="user-dropdown" id="userDropdown">
-                        <div class="dropdown-header">
-                            <div class="user-info">
-                                <span class="user-fullname">{{ user.get_full_name|default:user.username }}</span>
-                                <span class="user-email">{{ user.email }}</span>
+                    <span class="font-bold text-xl tracking-tight text-gray-900 group-hover:text-indigo-600 transition-colors">Pahara</span>
+                </a>
+            </div>
+
+            <!-- Center/Right Side -->
+            <div class="flex items-center gap-4">
+                
+                {% if user.is_authenticated %}
+                    <!-- Desktop Links (Visible on larger screens) -->
+                    <div class="hidden md:flex items-center space-x-1 mr-4">
+                        <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+                            <i class="fas fa-tachometer-alt mr-1.5"></i> Dashboard
+                        </a>
+                        <a href="{% url 'fall_detection' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+                            <i class="fas fa-video mr-1.5"></i> Monitor
+                        </a>
+                    </div>
+
+                    <!-- User Dropdown -->
+                    <div class="relative ml-3">
+                        <div>
+                            <button type="button" class="flex items-center max-w-xs bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 p-1 pr-3 hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                    <i class="fas fa-user text-sm"></i>
+                                </div>
+                                <span class="ml-2 text-sm font-medium text-gray-700 hidden sm:block">{{ user.username|truncatechars:10 }}</span>
+                                <i class="fas fa-chevron-down ml-2 text-xs text-gray-400"></i>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown Menu -->
+                        <div class="hidden origin-top-right absolute right-0 mt-2 w-56 rounded-xl shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none transform opacity-0 scale-95 transition-all duration-100 ease-out" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1" id="user-menu-dropdown">
+                            <!-- User Info Header -->
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <p class="text-sm text-gray-900 font-medium truncate">{{ user.get_full_name|default:user.username }}</p>
+                                <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                            </div>
+                            
+                            <!-- Links -->
+                            <div class="py-1">
+                                <a href="{% url 'dashboard' %}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600" role="menuitem">
+                                    <i class="fas fa-cog mr-3 text-gray-400 group-hover:text-indigo-500"></i> Settings
+                                </a>
+                                <a href="{% url 'fall_detection' %}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 md:hidden" role="menuitem">
+                                    <i class="fas fa-video mr-3 text-gray-400 group-hover:text-indigo-500"></i> Monitor
+                                </a>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="py-1 border-t border-gray-100">
+                                <a href="{% url 'logout' %}" class="group flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
+                                    <i class="fas fa-sign-out-alt mr-3 text-red-400 group-hover:text-red-600"></i> Sign out
+                                </a>
                             </div>
                         </div>
-                        <div class="dropdown-divider"></div>
-                        <a href="{% url 'dashboard' %}" class="dropdown-item">
-                            <i class="fas fa-cog"></i>
-                            <span>Settings</span>
+                    </div>
+
+                {% else %}
+                    <!-- Unauthenticated Buttons -->
+                    <div class="flex items-center gap-3">
+                        <a href="{% url 'loginout' %}" class="text-sm font-medium text-gray-500 hover:text-gray-900 px-3 py-2">
+                            Log in
                         </a>
-                        <a href="{% url 'logout' %}" class="dropdown-item logout-item">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
+                        <a href="{% url 'signup' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-sm">
+                            Sign Up
                         </a>
                     </div>
-                </div>
-            {% else %}
-                <!-- Unauthenticated Navbar (minimal) -->
-                <a href="{% url 'loginout' %}" class="nav-link">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Sign In</span>
-                </a>
-            {% endif %}
+                {% endif %}
+            </div>
         </div>
     </div>
 </nav>
 
-<style>
-.modern-navbar {
-    background: white;
-    border-bottom: 1px solid #f1f5f9;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    padding: 0;
-    height: 64px;
-}
-
-.nav-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 24px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
-}
-
-.nav-left {
-    display: flex;
-    align-items: center;
-}
-
-.nav-logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-    color: #1e293b;
-    transition: all 0.2s ease;
-}
-
-.nav-logo:hover {
-    opacity: 0.8;
-}
-
-.logo-icon {
-    width: 40px;
-    height: 40px;
-    background: #dcfce7;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #10b981;
-    font-size: 18px;
-}
-
-.logo-text {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.nav-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.nav-link {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #64748b;
-    font-size: 14px;
-    font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-    background: #f8fafc;
-    color: #10b981;
-}
-
-.nav-link i {
-    font-size: 16px;
-}
-
-.nav-user-menu {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 4px 12px 4px 4px;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-}
-
-.nav-user-menu:hover {
-    background: #f8fafc;
-}
-
-.user-avatar {
-    width: 36px;
-    height: 36px;
-    background: #dcfce7;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #10b981;
-    font-size: 16px;
-}
-
-.user-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: #1e293b;
-}
-
-.dropdown-arrow {
-    font-size: 12px;
-    color: #64748b;
-    transition: transform 0.2s ease;
-}
-
-.nav-user-menu.active .dropdown-arrow {
-    transform: rotate(180deg);
-}
-
-.user-dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 10px 25px rgba(0,0,0,0.08);
-    min-width: 240px;
-    display: none;
-    z-index: 1001;
-    border: 1px solid #f1f5f9;
-    animation: dropdownSlide 0.2s ease-out;
-}
-
-.user-dropdown.show {
-    display: block;
-}
-
-@keyframes dropdownSlide {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.dropdown-header {
-    padding: 16px;
-}
-
-.user-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.user-fullname {
-    font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
-}
-
-.user-email {
-    font-size: 12px;
-    color: #64748b;
-}
-
-.dropdown-divider {
-    height: 1px;
-    background: #f1f5f9;
-    margin: 4px 0;
-}
-
-.dropdown-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    text-decoration: none;
-    color: #1e293b;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background: #f8fafc;
-    color: #10b981;
-}
-
-.dropdown-item i {
-    font-size: 14px;
-    width: 18px;
-    text-align: center;
-}
-
-.dropdown-item.logout-item {
-    color: #ef4444;
-}
-
-.dropdown-item.logout-item:hover {
-    background: #fef2f2;
-    color: #dc2626;
-}
-</style>
-
+<!-- JavaScript for Dropdown -->
 <script>
-function toggleUserDropdown() {
-    const dropdown = document.getElementById('userDropdown');
-    const menu = document.querySelector('.nav-user-menu');
-    
-    const isShowing = dropdown.classList.contains('show');
-    
-    // Close all dropdowns
-    document.querySelectorAll('.user-dropdown').forEach(d => d.classList.remove('show'));
-    document.querySelectorAll('.nav-user-menu').forEach(m => m.classList.remove('active'));
-    
-    if (!isShowing) {
-        dropdown.classList.add('show');
-        menu.classList.add('active');
-    }
-}
+    document.addEventListener('DOMContentLoaded', function() {
+        const button = document.getElementById('user-menu-button');
+        const dropdown = document.getElementById('user-menu-dropdown');
+        
+        if (button && dropdown) {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isHidden = dropdown.classList.contains('hidden');
+                
+                if (isHidden) {
+                    // Show
+                    dropdown.classList.remove('hidden');
+                    // Small delay to allow display:block to apply before transition
+                    requestAnimationFrame(() => {
+                        dropdown.classList.remove('opacity-0', 'scale-95');
+                        dropdown.classList.add('opacity-100', 'scale-100');
+                    });
+                } else {
+                    // Hide
+                    dropdown.classList.remove('opacity-100', 'scale-100');
+                    dropdown.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        dropdown.classList.add('hidden');
+                    }, 100); // Match duration
+                }
+            });
 
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const menu = document.querySelector('.nav-user-menu');
-    const dropdown = document.getElementById('userDropdown');
-    
-    if (!menu.contains(event.target) && dropdown.classList.contains('show')) {
-        dropdown.classList.remove('show');
-        menu.classList.remove('active');
-    }
-});
+            // Close when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!button.contains(event.target) && !dropdown.contains(event.target)) {
+                    dropdown.classList.remove('opacity-100', 'scale-100');
+                    dropdown.classList.add('opacity-0', 'scale-95');
+                    setTimeout(() => {
+                        dropdown.classList.add('hidden');
+                    }, 100);
+                }
+            });
+        }
+    });
 </script>
-
-
