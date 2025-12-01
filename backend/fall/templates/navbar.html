@@ -21,9 +21,16 @@
                 {% if user.is_authenticated %}
                     <!-- Desktop Links (Visible on larger screens) -->
                     <div class="hidden md:flex items-center space-x-1 mr-4">
-                        <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
-                            <i class="fas fa-tachometer-alt mr-1.5"></i> Dashboard
-                        </a>
+                        {# Choose dashboard link based on user type if profile exists #}
+                        {% if user.userprofile.user_type == 'viewer' %}
+                            <a href="{% url 'viewer_dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+                                <i class="fas fa-eye mr-1.5"></i> Viewer Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+                                <i class="fas fa-tachometer-alt mr-1.5"></i> Dashboard
+                            </a>
+                        {% endif %}
                         <a href="{% url 'fall_detection' %}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
                             <i class="fas fa-video mr-1.5"></i> Monitor
                         </a>
@@ -51,9 +58,15 @@
                             
                             <!-- Links -->
                             <div class="py-1">
-                                <a href="{% url 'dashboard' %}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600" role="menuitem">
-                                    <i class="fas fa-cog mr-3 text-gray-400 group-hover:text-indigo-500"></i> Settings
-                                </a>
+                                {% if user.userprofile.user_type == 'viewer' %}
+                                    <a href="{% url 'viewer_dashboard' %}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600" role="menuitem">
+                                        <i class="fas fa-eye mr-3 text-gray-400 group-hover:text-indigo-500"></i> Viewer Dashboard
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'dashboard' %}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600" role="menuitem">
+                                        <i class="fas fa-cog mr-3 text-gray-400 group-hover:text-indigo-500"></i> Dashboard
+                                    </a>
+                                {% endif %}
                                 <a href="{% url 'fall_detection' %}" class="group flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-indigo-600 md:hidden" role="menuitem">
                                     <i class="fas fa-video mr-3 text-gray-400 group-hover:text-indigo-500"></i> Monitor
                                 </a>

@@ -11,23 +11,13 @@ import numpy as np
 from ultralytics import YOLO
 import os
 import io
-
-
-
-from django.shortcuts import render, redirect
-from django.conf import settings
-from django.http import JsonResponse, StreamingHttpResponse
-import cv2
-import threading
-import time
-import base64
-import numpy as np
-from ultralytics import YOLO
-import os
-import io
 import requests
 import re
-from dashboard.models import Contact
+import datetime
+import random
+import json
+from django.contrib.auth.models import User
+from dashboard.models import Contact, FallAlert, ViewerProfile
 
 
 
@@ -40,8 +30,12 @@ WHATSAPP_ACCESS_TOKEN = "EAAaxZA9x8v5gBPy6ZC4ZAkoWTrBaWRy8EdvzLko5TSSt4J5cZBY79P
 
 
 def home(request):
-    # If user is authenticated, redirect to dashboard
+    # If user is authenticated, redirect to appropriate dashboard based on user type
     if request.user.is_authenticated:
+        # If user has a profile and is a viewer, send to viewer dashboard
+        if hasattr(request.user, 'userprofile') and getattr(request.user.userprofile, 'user_type', 'setup') == 'viewer':
+            return redirect('viewer_dashboard')
+        # Default: setup/admin users go to main dashboard
         return redirect('dashboard')
     return render(request, "home.html")
 
@@ -180,6 +174,51 @@ def send_alert(request):
     return redirect("home")
 
 
+def save_fall_image(frame, setup_user_id, detection_info=None):
+    """
+    Save fall detection frame as an image file.
+    
+    Args:
+        frame: OpenCV frame (numpy array) to save
+        setup_user_id: ID of the setup user who owns this detection
+        detection_info: Optional dictionary containing detection information
+        
+    Returns:
+        str: Relative path to saved image (for database storage), or None if failed
+    """
+    try:
+        # Create fall_alerts directory if it doesn't exist
+        fall_alerts_dir = os.path.join(settings.MEDIA_ROOT, 'fall_alerts')
+        os.makedirs(fall_alerts_dir, exist_ok=True)
+        
+        # Generate filename: {timestamp}_{setup_user_id}_{random}.jpg
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        random_suffix = random.randint(1000, 9999)
+        filename = f"{timestamp}_{setup_user_id}_{random_suffix}.jpg"
+        filepath = os.path.join(fall_alerts_dir, filename)
+        
+        # Save image using cv2.imwrite()
+        # Note: Using frame_lock might not be necessary here since we're copying the frame
+        # but we'll ensure the directory creation and file writing are atomic operations
+        success = cv2.imwrite(filepath, frame)
+        
+        if not success:
+            print(f"❌ Failed to save fall image to {filepath}")
+            return None
+        
+        # Return relative path for database storage (MEDIA_URL + relative path)
+        # Format: fall_alerts/{filename}
+        relative_path = os.path.join('fall_alerts', filename).replace('\\', '/')
+        print(f"✅ Fall image saved: {relative_path}")
+        return relative_path
+        
+    except Exception as e:
+        print(f"❌ Error saving fall image: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
 # Global variables for alert system
 alert_history = []
 alert_lock = threading.Lock()
@@ -189,8 +228,14 @@ last_alert_time = 0
 ALERT_COOLDOWN = 30  # 30 seconds cooldown between alerts
 
 
-def send_fall_alert(detection_info=None):
-    """Enhanced fall alert system with logging and error handling"""
+def send_fall_alert(detection_info=None, image_path=None, setup_user_id=None):
+    """Enhanced fall alert system with logging and error handling
+    
+    Args:
+        detection_info: Dictionary containing detection details (confidence, bbox, class_name, etc.)
+        image_path: Relative path to saved fall image (optional)
+        setup_user_id: ID of the setup user who owns this detection (optional)
+    """
     global alert_history, alert_lock, alert_count, last_alert_time
     
     if not alert_enabled:
@@ -260,6 +305,84 @@ def send_fall_alert(detection_info=None):
                 })
                 print(f"❌ Exception sending alert to {contact.name} ({contact.phone_number}): {e}")
         
+        # Create FallAlert records in database if setup_user_id is provided
+        whatsapp_sent = success_count > 0
+        fall_alerts_created = []
+        
+        if setup_user_id:
+            try:
+                # Get setup_user object
+                try:
+                    setup_user = User.objects.get(id=setup_user_id)
+                except User.DoesNotExist:
+                    print(f"⚠️ Setup user with ID {setup_user_id} not found - skipping FallAlert creation")
+                    setup_user = None
+                
+                if setup_user:
+                    # Get all active viewers linked to this setup user
+                    active_viewers = ViewerProfile.objects.filter(
+                        setup_user=setup_user,
+                        is_active=True
+                    )
+                    
+                    # Prepare detection_info as JSON string
+                    # Convert numpy types to native Python types for JSON serialization
+                    if detection_info:
+                        # Create a copy to avoid modifying original
+                        detection_info_serializable = {}
+                        for key, value in detection_info.items():
+                            # Convert numpy types to Python types
+                            if isinstance(value, np.ndarray):
+                                detection_info_serializable[key] = value.tolist()
+                            elif isinstance(value, (np.integer, np.floating)):
+                                detection_info_serializable[key] = value.item()
+                            else:
+                                detection_info_serializable[key] = value
+                        detection_info_json = json.dumps(detection_info_serializable)
+                    else:
+                        detection_info_json = ''
+                    
+                    # Get consecutive_frames and confidence from detection_info
+                    consecutive_frames = detection_info.get('consecutive_frames', 0) if detection_info else 0
+                    confidence = detection_info.get('confidence') if detection_info else None
+                    
+                    if active_viewers.exists():
+                        # Create FallAlert for each active viewer
+                        for viewer in active_viewers:
+                            fall_alert = FallAlert.objects.create(
+                                setup_user=setup_user,
+                                viewer=viewer,
+                                status='pending',
+                                confidence=confidence,
+                                consecutive_frames=consecutive_frames,
+                                snapshot_path=image_path or '',
+                                detection_info=detection_info_json,
+                                whatsapp_sent=whatsapp_sent
+                            )
+                            fall_alerts_created.append(fall_alert)
+                            print(f"✅ FallAlert created for viewer: {viewer.name} (Alert ID: {fall_alert.id})")
+                    else:
+                        # No viewers linked, create one general alert without viewer assignment
+                        fall_alert = FallAlert.objects.create(
+                            setup_user=setup_user,
+                            viewer=None,
+                            status='pending',
+                            confidence=confidence,
+                            consecutive_frames=consecutive_frames,
+                            snapshot_path=image_path or '',
+                            detection_info=detection_info_json,
+                            whatsapp_sent=whatsapp_sent
+                        )
+                        fall_alerts_created.append(fall_alert)
+                        print(f"✅ FallAlert created for setup user: {setup_user.username} (Alert ID: {fall_alert.id}) - No viewers linked")
+                        
+            except Exception as e:
+                print(f"❌ Error creating FallAlert records: {str(e)}")
+                import traceback
+                traceback.print_exc()
+        else:
+            print("⚠️ No setup_user_id provided - skipping FallAlert creation")
+        
         # Log the alert
         alert_record = {
             'timestamp': current_time,
@@ -267,7 +390,8 @@ def send_fall_alert(detection_info=None):
             'total_recipients': contacts.count(),
             'failed_contacts': failed_contacts,
             'detection_info': detection_info,
-            'message_details': message_details
+            'message_details': message_details,
+            'fall_alerts_created': len(fall_alerts_created)
         }
         
         with alert_lock:
@@ -279,7 +403,7 @@ def send_fall_alert(detection_info=None):
             if len(alert_history) > 50:
                 alert_history.pop(0)
         
-        print(f"🚨 Fall alert sent! Success: {success_count}/{contacts.count()}")
+        print(f"🚨 Fall alert sent! Success: {success_count}/{contacts.count()}, FallAlerts created: {len(fall_alerts_created)}")
         return success_count > 0
         
     except Exception as e:
@@ -348,6 +472,9 @@ alert_count = 0
 # Alert aggregation variables
 consecutive_fall_frames = 0
 FALL_THRESHOLD = 5  # Number of consecutive frames with fall detection required before alert
+
+# Current setup user context (who started detection)
+current_setup_user_id = None
 
 
 
@@ -682,8 +809,8 @@ def video_stream_raw(request):
 
 
 def enable_detection(request):
-    """Enable fall detection"""
-    global detection_enabled
+    """Enable fall detection for the current setup user"""
+    global detection_enabled, current_setup_user_id
     
     if not webcam_running:
         return JsonResponse({'status': 'error', 'message': 'Webcam is not running'})
@@ -691,8 +818,19 @@ def enable_detection(request):
     if fall_detection_model is None:
         return JsonResponse({'status': 'error', 'message': 'YOLO model not loaded'})
     
+    # Require authenticated setup user to start detection context
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'You must be logged in as a setup user to start detection.'})
+    
+    # If UserProfile exists, ensure this is a setup user
+    if hasattr(request.user, 'userprofile') and request.user.userprofile.user_type != 'setup':
+        return JsonResponse({'status': 'error', 'message': 'Only setup users can start fall detection.'})
+    
+    # Store current setup user ID for use when alerts are generated
+    current_setup_user_id = request.user.id
     detection_enabled = True
-    return JsonResponse({'status': 'success', 'message': 'Fall detection enabled'})
+    print(f"✅ Fall detection enabled by setup user ID {current_setup_user_id}")
+    return JsonResponse({'status': 'success', 'message': 'Fall detection enabled', 'setup_user_id': current_setup_user_id})
 
 
 def disable_detection(request):
@@ -706,7 +844,7 @@ def disable_detection(request):
 def get_detection_status(request):
     """Get current detection status and results"""
     global detection_enabled, latest_detections, detection_lock, last_alert_time, ALERT_COOLDOWN
-    global consecutive_fall_frames, FALL_THRESHOLD
+    global consecutive_fall_frames, FALL_THRESHOLD, latest_frame, frame_lock, current_setup_user_id
     
     with detection_lock:
         detections = latest_detections.copy()
@@ -735,21 +873,56 @@ def get_detection_status(request):
                         if fall_detection is None or detection['confidence'] > fall_detection['confidence']:
                             fall_detection = detection
                 
-                # Send enhanced alert (rate limiting is handled inside send_fall_alert)
-                alert_sent = send_fall_alert(fall_detection)
+                # Ensure we have a detection_info dict (create empty one if fall_detection is None)
+                if fall_detection is None:
+                    fall_detection = {'class_name': 'fall', 'confidence': 0.0}
                 
-                # Only reset counter if alert was successfully sent
-                # If rate limited, keep counter at threshold so we can send once cooldown expires
-                if alert_sent:
-                    consecutive_fall_frames = 0
-                    print(f"✅ Alert sent after {FALL_THRESHOLD} consecutive fall detections")
+                # Add consecutive_frames to detection_info
+                fall_detection['consecutive_frames'] = consecutive_fall_frames
+                
+                # Capture current frame for alert
+                image_path = None
+                setup_user_id = current_setup_user_id
+                
+                # Fallback: if no setup user was stored, use current authenticated user (for backward compatibility)
+                if setup_user_id is None and request.user.is_authenticated:
+                    setup_user_id = request.user.id
+                
+                if setup_user_id is not None:
+                    # Get current frame with thread-safe lock
+                    current_frame = None
+                    with frame_lock:
+                        if latest_frame is not None:
+                            # Make a copy to avoid reference issues
+                            current_frame = latest_frame.copy()
+                    
+                    # Save the fall image if frame is available
+                    if current_frame is not None:
+                        image_path = save_fall_image(current_frame, setup_user_id, fall_detection)
+                        if image_path:
+                            print(f"📸 Fall image captured and saved: {image_path}")
+                        else:
+                            print(f"⚠️ Failed to save fall image")
+                    else:
+                        print(f"⚠️ No frame available to capture")
                 else:
-                    # Keep counter at threshold (don't increment further, but don't reset)
-                    consecutive_fall_frames = FALL_THRESHOLD
-                    # Calculate remaining cooldown time
-                    current_time = time.time()
-                    cooldown_remaining = max(0, ALERT_COOLDOWN - (current_time - last_alert_time))
-                    print(f"⏸️ Alert rate limited - Cooldown remaining: {cooldown_remaining:.1f}s - Will retry when cooldown expires")
+                    print(f"⚠️ No setup_user_id available - cannot associate alert with a setup user")
+                
+                # Send enhanced alert with image path (rate limiting is handled inside send_fall_alert)
+                alert_sent = send_fall_alert(detection_info=fall_detection, image_path=image_path, setup_user_id=setup_user_id)
+            
+            # Only reset counter if alert was successfully sent
+            # If rate limited, keep counter at threshold so we can send once cooldown expires
+            if alert_sent:
+                consecutive_fall_frames = 0
+                print(f"✅ Alert sent after {FALL_THRESHOLD} consecutive fall detections")
+            else:
+                # Keep counter at threshold (don't increment further, but don't reset)
+                consecutive_fall_frames = FALL_THRESHOLD
+                # Calculate remaining cooldown time
+                current_time = time.time()
+                cooldown_remaining = max(0, ALERT_COOLDOWN - (current_time - last_alert_time))
+                print(f"⏸️ Alert rate limited - Cooldown remaining: {cooldown_remaining:.1f}s - Will retry when cooldown expires")
         else:
             # Reset counter when no fall detected
             if consecutive_fall_frames > 0:

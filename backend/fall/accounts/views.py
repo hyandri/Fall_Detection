@@ -89,6 +89,11 @@ def signup(request):
             messages.info(request, 'Email is taken.')
             return redirect('signup')
 
+        # Get user_type from POST (default to 'setup' if not provided)
+        user_type = request.POST.get('user_type', 'setup')
+        if user_type not in ['setup', 'viewer']:
+            user_type = 'setup'
+
         user = User.objects.create_user(
             username=username,
             password=password,
@@ -96,6 +101,12 @@ def signup(request):
         )
         user.is_active = False
         user.save(update_fields=['is_active'])
+
+        # Update UserProfile with selected user_type
+        # Signal handler creates UserProfile with default 'setup', so update if viewer was selected
+        if hasattr(user, 'userprofile'):
+            user.userprofile.user_type = user_type
+            user.userprofile.save(update_fields=['user_type'])
 
         try:
             _send_verification_email(request, user)
@@ -118,8 +129,11 @@ def signup(request):
 
 
 def loginout(request):
+    # If user already logged in, send them to appropriate dashboard
     if request.user.is_authenticated:
-        return redirect('home')
+        if hasattr(request.user, 'userprofile') and getattr(request.user.userprofile, 'user_type', 'setup') == 'viewer':
+            return redirect('viewer_dashboard')
+        return redirect('dashboard')
 
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -128,7 +142,10 @@ def loginout(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')
+            # Redirect based on user type
+            if hasattr(user, 'userprofile') and getattr(user.userprofile, 'user_type', 'setup') == 'viewer':
+                return redirect('viewer_dashboard')
+            return redirect('dashboard')
 
         pending_user = User.objects.filter(username=username).first()
         if pending_user and not pending_user.is_active:

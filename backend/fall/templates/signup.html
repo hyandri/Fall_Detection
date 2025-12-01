@@ -87,6 +87,27 @@
           </div>
         </div>
 
+        <!-- User Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Account Type</label>
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <input id="user_type_setup" name="user_type" type="radio" value="setup" checked class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+              <label for="user_type_setup" class="ml-3 block text-sm text-gray-700">
+                <span class="font-medium">Setup User</span>
+                <span class="text-gray-500 text-xs block">Manage cameras and detection settings</span>
+              </label>
+            </div>
+            <div class="flex items-center">
+              <input id="user_type_viewer" name="user_type" type="radio" value="viewer" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
+              <label for="user_type_viewer" class="ml-3 block text-sm text-gray-700">
+                <span class="font-medium">Viewer User</span>
+                <span class="text-gray-500 text-xs block">Monitor and confirm fall alerts</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <!-- Password -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
